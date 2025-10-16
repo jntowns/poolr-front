@@ -67,38 +67,14 @@ onMounted(() => {
 
 // Compute route segments with different colors
 const routeSegments = computed(() => {
-    if (!routeData.value || !routeData.value.coordinates) return []
+    if (!routeData.value || !routeData.value.segments) return []
 
-    const segments = []
     const colors = ['#00ff00', '#ff6600'] // Green for segment 1->2, Orange for segment 2->3
 
-    // Try to split route into segments based on waypoints, ill fix it later
-    const coords = routeData.value.coordinates
-    if (coords.length < 2) return []
-
-    // If we have waypoint information in the response, use it
-    // Otherwise, approximate by splitting the route in half
-    if (waypoints.value.length === 3) {
-        const midPoint = Math.floor(coords.length / 2)
-
-        segments.push({
-            coordinates: coords.slice(0, midPoint + 1),
-            color: colors[0] // Green for waypoint 1 -> 2
-        })
-
-        segments.push({
-            coordinates: coords.slice(midPoint),
-            color: colors[1] // Orange for waypoint 2 -> 3
-        })
-    } else {
-        // Fallback: show entire route in blue
-        segments.push({
-            coordinates: coords,
-            color: '#0000ff'
-        })
-    }
-
-    return segments
+    return routeData.value.segments.map((segmentCoords, index) => ({
+        coordinates: segmentCoords,
+        color: colors[index] || '#0000ff'
+    }))
 })
 
 const onMapClick = (event) => {
