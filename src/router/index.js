@@ -6,6 +6,7 @@ import AboutPage from '../views/AboutPage.vue'
 import LoginPage from '../views/LoginPage.vue'
 import RegisterPage from '../views/RegisterPage.vue'
 import MapPage from '../views/MapPage.vue'
+import ErrorPage from '../views/ErrorPage.vue'
 
 const router = createRouter({
     history: createWebHistory(),
@@ -51,11 +52,17 @@ const router = createRouter({
             name: 'map',
             component: MapPage,
             meta: { title: 'Map' }
+        },
+        {
+            path: '/:pathMatch(.*)*',
+            name: 'error',
+            component: ErrorPage,
+            meta: { title: '404' }
         }
     ]
 })
 
-router.beforeEach((to, from, next) => {
+router.beforeEach((to, _from, next) => {
     document.title = `Poolr - ${to.meta.title}`
     next()
 })
