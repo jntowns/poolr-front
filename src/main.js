@@ -5,6 +5,7 @@ import 'leaflet/dist/leaflet.css'
 import L from 'leaflet'
 import { createPinia } from 'pinia'
 import router from './router'
+import PrimeVue from 'primevue/config';
 
 delete L.Icon.Default.prototype._getIconUrl
 L.Icon.Default.mergeOptions({
@@ -18,4 +19,5 @@ const pinia = createPinia()
 const app = createApp(App)
 app.use(pinia)
 app.use(router)
+app.use(PrimeVue)
 app.mount('#app')
