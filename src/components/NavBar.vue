@@ -11,11 +11,11 @@
                 </div>
 
                 <div class="hidden md:flex items-center space-x-8">
-                    <router-link to="/map"
+                    <router-link to="/find-ride"
                         class="text-cool-white hover:text-electric-blue transition-colors font-medium">
                         Ride
                     </router-link>
-                    <router-link to="/map"
+                    <router-link to="/offer-ride"
                         class="text-cool-white hover:text-electric-blue transition-colors font-medium">
                         Drive
                     </router-link>
@@ -54,11 +54,11 @@
                 leave-to-class="opacity-0 -translate-y-2">
                 <div v-show="isMobileMenuOpen" class="md:hidden pb-4">
                     <div class="flex flex-col space-y-3 pt-2">
-                        <router-link to="/map" @click="closeMobileMenu"
+                        <router-link to="/find-ride" @click="closeMobileMenu"
                             class="text-cool-white hover:text-electric-blue transition-colors font-medium px-2 py-2">
                             Ride
                         </router-link>
-                        <router-link to="/map" @click="closeMobileMenu"
+                        <router-link to="/offer-ride" @click="closeMobileMenu"
                             class="text-cool-white hover:text-electric-blue transition-colors font-medium px-2 py-2">
                             Drive
                         </router-link>
