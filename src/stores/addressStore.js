@@ -4,6 +4,8 @@ import apiClient from '../utils/apiClient'
 export const useAddressStore = defineStore('address', {
     state: () => ({
         selectedAddress: null,
+        origin: null,
+        destination: null,
         isLoading: false,
         error: null
     }),
@@ -40,6 +42,22 @@ export const useAddressStore = defineStore('address', {
 
         setSelectedAddress(address) {
             this.selectedAddress = address
+        },
+
+        setOrigin(address) {
+            this.origin = address
+        },
+
+        setDestination(address) {
+            this.destination = address
+        },
+
+        clearOrigin() {
+            this.origin = null
+        },
+
+        clearDestination() {
+            this.destination = null
         },
 
         clearError() {

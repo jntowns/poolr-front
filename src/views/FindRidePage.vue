@@ -3,54 +3,167 @@
         <div class="max-w-2xl mx-auto">
             <div class="bg-white rounded-xl shadow-lg p-8">
                 <h1 class="text-3xl font-bold text-gray-900 mb-6">
-                    Address Finder
+                    Find a Ride
                 </h1>
 
-                <AddressSearchBar v-model="selectedAddress" placeholder="Start typing an address..." :min-chars="2"
-                    :debounce-delay="300" :max-results="10" @select="handleAddressSelect" @clear="handleClear" />
-
-                <div v-if="selectedAddress"
-                    class="mt-6 p-6 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg">
-                    <h3 class="text-lg font-semibold text-gray-900 mb-4">
-                        Selected Address
-                    </h3>
-                    <dl class="space-y-2">
-                        <div class="flex justify-between">
-                            <dt class="text-sm font-medium text-gray-600">Full Address:</dt>
-                            <dd class="text-sm text-gray-900">{{ selectedAddress.fullAddress }}</dd>
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        From (Your Location)
+                    </label>
+                    <div class="flex gap-2">
+                        <div class="flex-1">
+                            <AddressSearchBar v-model="origin" placeholder="Enter pickup location..." :min-chars="2"
+                                :debounce-delay="300" :max-results="10" @select="handleOriginSelect"
+                                @clear="handleOriginClear" />
                         </div>
-                        <div class="flex justify-between">
-                            <dt class="text-sm font-medium text-gray-600">City:</dt>
-                            <dd class="text-sm text-gray-900">{{ selectedAddress.city }}</dd>
-                        </div>
-                        <div class="flex justify-between">
-                            <dt class="text-sm font-medium text-gray-600">Postcode:</dt>
-                            <dd class="text-sm text-gray-900">{{ selectedAddress.postcode }}</dd>
-                        </div>
-                        <div class="flex justify-between">
-                            <dt class="text-sm font-medium text-gray-600">Coordinates:</dt>
-                            <dd class="text-sm text-gray-900">
-                                {{ selectedAddress.latitude.toFixed(6) }}, {{ selectedAddress.longitude.toFixed(6) }}
-                            </dd>
-                        </div>
-                    </dl>
+                        <button @click="getUserLocation" :disabled="isGettingLocation"
+                            class="px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition duration-200 flex items-center gap-2"
+                            title="Use my current location">
+                            <svg v-if="!isGettingLocation" class="w-5 h-5" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                            </svg>
+                            <svg v-else class="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                                    stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor"
+                                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                                </path>
+                            </svg>
+                        </button>
+                    </div>
                 </div>
+
+                <div class="mb-6">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        To (Destination)
+                    </label>
+                    <AddressSearchBar v-model="destination" placeholder="Enter destination..." :min-chars="2"
+                        :debounce-delay="300" :max-results="10" @select="handleDestinationSelect"
+                        @clear="handleDestinationClear" />
+                </div>
+
+                <div v-if="origin || destination" class="mt-6 space-y-4">
+                    <div v-if="origin"
+                        class="p-4 bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg">
+                        <h3 class="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                            <svg class="w-4 h-4 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                                <circle cx="10" cy="10" r="8" />
+                            </svg>
+                            Pickup Location
+                        </h3>
+                        <p class="text-sm text-gray-900">{{ origin.fullAddress }}</p>
+                    </div>
+
+                    <div v-if="destination"
+                        class="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg">
+                        <h3 class="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                            <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                            </svg>
+                            Destination
+                        </h3>
+                        <p class="text-sm text-gray-900">{{ destination.fullAddress }}</p>
+                    </div>
+                </div>
+
+                <button v-if="origin && destination" @click="findRide"
+                    class="w-full mt-6 px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition duration-200">
+                    Find Available Rides
+                </button>
             </div>
         </div>
     </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
+import { useAddressStore } from '../stores/addressStore'
 import AddressSearchBar from '../components/AddressSearchBar.vue'
+import apiClient from '../utils/apiClient'
+import { showToast } from '../utils/BaseToast'
 
-const selectedAddress = ref(null)
+const addressStore = useAddressStore()
+const origin = computed({
+    get: () => addressStore.origin,
+    set: (value) => addressStore.setOrigin(value)
+})
+const destination = computed({
+    get: () => addressStore.destination,
+    set: (value) => addressStore.setDestination(value)
+})
 
-const handleAddressSelect = (address) => {
-    console.log('Address selected:', address)
+const isGettingLocation = ref(false)
+
+const handleOriginSelect = (address) => {
+    addressStore.setOrigin(address)
+    console.log('Origin selected:', address)
 }
 
-const handleClear = () => {
-    console.log('Search cleared')
+const handleOriginClear = () => {
+    addressStore.clearOrigin()
+    console.log('Origin cleared')
+}
+
+const handleDestinationSelect = (address) => {
+    addressStore.setDestination(address)
+    console.log('Destination selected:', address)
+}
+
+const handleDestinationClear = () => {
+    addressStore.clearDestination()
+    console.log('Destination cleared')
+}
+
+const getUserLocation = () => {
+    if (!navigator.geolocation) {
+        showToast('Geolocation is not supported by your browser', 'error')
+        return
+    }
+
+    isGettingLocation.value = true
+
+    navigator.geolocation.getCurrentPosition(
+        async (position) => {
+            try {
+                const { latitude, longitude } = position.coords
+
+                const response = await apiClient.get('/api/addresses/reverse', {
+                    params: { lat: latitude, lon: longitude }
+                })
+
+                const address = response.data
+                addressStore.setOrigin(address)
+                showToast('Location found!', 'success')
+            } catch (error) {
+                console.error('Error reverse geocoding:', error)
+                showToast('Failed to get address from location', 'error')
+            } finally {
+                isGettingLocation.value = false
+            }
+        },
+        (error) => {
+            console.error('Geolocation error:', error)
+            showToast('Failed to get your location. Please enter it manually.', 'error')
+            isGettingLocation.value = false
+        },
+        {
+            enableHighAccuracy: true,
+            timeout: 5000,
+            maximumAge: 0
+        }
+    )
+}
+
+const findRide = () => {
+    console.log('Finding rides from', origin.value, 'to', destination.value)
+    showToast('Searching for available rides...', 'info')
+    // i havent actually implemented anything for this yet
 }
 </script>
