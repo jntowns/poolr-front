@@ -5,8 +5,9 @@
                 <!-- so we have to put the logo Jen made here somewhere -->
                 <div class="flex-shrink-0">
                     <router-link to="/"
-                        class="text-2xl font-bold text-white hover:text-electric-blue transition flex items-center pushButton">
-                        Poolr
+                        class="filter saturate-100 hover:saturate-200 transition flex items-center pushButton" style="transition-property: filter;transition-duration: 500ms;">
+                        <img :src=poolrLogo alt="Poolr Logo"
+                        class="mx-auto h-15 w-auto rounded-md" />
                     </router-link>
                 </div>
 
@@ -101,6 +102,7 @@
 </template>
 
 <script setup>
+import poolrLogo from '../assets/images/poolr-logo.png'
 import { storeToRefs } from 'pinia'
 import { ref, onMounted } from 'vue'
 import { useIdentityStore } from '../stores/identityStore'

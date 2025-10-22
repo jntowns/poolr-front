@@ -2,8 +2,8 @@
     <div
         class="flex min-h-full max-w-md min-w-md border border-gray-200 rounded-lg flex-col justify-center px-6 py-12 lg:px-8 bg-sky-900">
         <div class="sm:mx-auto sm:w-full sm:max-w-sm">
-            <img src="https://tailwindcss.com/plus-assets/img/logos/mark.svg?color=indigo&shade=500" alt="Your Company"
-                class="mx-auto h-10 w-auto" />
+            <img :src=poolrLogo alt="Poolr Logo"
+                class="mx-auto h-25 w-auto rounded-lg" />
             <h2 class="mt-10 text-center text-2xl/9 font-bold tracking-tight text-white">Login</h2>
         </div>
 
@@ -37,6 +37,7 @@
 </template>
 
 <script setup>
+import poolrLogo from '../assets/images/poolr-logo.png'
 import apiClient from '../utils/apiClient'
 import { showToast } from '../utils/BaseToast'
 import { reactive } from 'vue'
