@@ -1,10 +1,60 @@
 <template>
     <div class="info-panel" aria-live="polite">
-        <h3>Route Planner</h3>
-        <p>Click on the map to set waypoint {{ waypoints.length + 1 }} of 3</p>
+        <h3>{{ selectedRide ? 'Selected Ride' : 'Route Planner' }}</h3>
+
+        <div v-if="selectedRide" class="ride-details">
+            <div class="detail-item">
+                <strong>Driver:</strong> {{ selectedRide.driverName }}
+            </div>
+            <div class="detail-item">
+                <strong>Vehicle:</strong> {{ selectedRide.vehicle }} ({{ selectedRide.vehicleColor }})
+            </div>
+            <div class="detail-item">
+                <strong>Distance from you:</strong> {{ selectedRide.distanceFromUserKm.toFixed(2) }} km
+            </div>
+        </div>
+
+        <p v-else>Click on the map to set waypoint {{ waypoints.length + 1 }}</p>
+
+        <!-- legend that displays what the colors mean -->
+        <div v-if="selectedRide" class="legend-section">
+            <h4 class="legend-title">Map Legend</h4>
+
+            <div class="legend-subsection">
+                <strong>Markers:</strong>
+                <div class="legend-item">
+                    <span class="marker-dot" style="background-color: #2AAD27;"></span>
+                    <span>Ride Start</span>
+                </div>
+                <div class="legend-item">
+                    <span class="marker-dot" style="background-color: #2A81CB;"></span>
+                    <span>Your Pickup</span>
+                </div>
+                <div class="legend-item">
+                    <span class="marker-dot" style="background-color: #CB8427;"></span>
+                    <span>Your Destination</span>
+                </div>
+                <div class="legend-item">
+                    <span class="marker-dot" style="background-color: #CB2B3E;"></span>
+                    <span>Ride End</span>
+                </div>
+            </div>
+
+            <div class="legend-subsection">
+                <strong>Route Segments:</strong>
+                <div class="legend-item">
+                    <span class="line-sample" style="background-color: #00ff00;"></span>
+                    <span>Driver's route to pick you up</span>
+                </div>
+                <div class="legend-item">
+                    <span class="line-sample" style="background-color: #ff6600;"></span>
+                    <span>Shared ride to your destination</span>
+                </div>
+            </div>
+        </div>
 
         <div v-for="(waypoint, index) in waypoints" :key="index" class="point-info">
-            <strong>Waypoint {{ index + 1 }}:</strong> {{ waypoint.lat.toFixed(5) }}, {{ waypoint.lon.toFixed(5) }}
+            <strong>{{ getWaypointLabel(index) }}:</strong> {{ waypoint.lat.toFixed(5) }}, {{ waypoint.lon.toFixed(5) }}
         </div>
 
         <div v-if="routeData" class="route-info">
@@ -26,6 +76,15 @@ const mapStore = useMapStore()
 
 const waypoints = computed(() => mapStore.waypoints)
 const routeData = computed(() => mapStore.routeData)
+const selectedRide = computed(() => mapStore.selectedRide)
+
+const getWaypointLabel = (index) => {
+    if (selectedRide.value) {
+        const labels = ['Ride Start', 'Your Pickup', 'Your Destination', 'Ride End']
+        return labels[index] || `Point ${index + 1}`
+    }
+    return `Waypoint ${index + 1}`
+}
 
 const clearPoints = () => {
     mapStore.clearPoints()
@@ -94,5 +153,68 @@ const clearPoints = () => {
         width: 100%;
         align-self: stretch;
     }
+}
+
+.ride-details {
+    margin: 10px 0;
+    padding: 10px;
+    background: #e8f5e9;
+    border-radius: 4px;
+}
+
+.detail-item {
+    margin: 5px 0;
+    font-size: 12px;
+    color: #000;
+}
+
+.legend-section {
+    margin: 15px 0;
+    padding: 10px;
+    background: #f9f9f9;
+    border-radius: 4px;
+    border: 1px solid #e0e0e0;
+}
+
+.legend-title {
+    margin: 0 0 10px 0;
+    font-size: 13px;
+    font-weight: 600;
+    color: #333;
+}
+
+.legend-subsection {
+    margin: 8px 0;
+}
+
+.legend-subsection strong {
+    display: block;
+    font-size: 11px;
+    color: #666;
+    margin-bottom: 5px;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 4px 0;
+    font-size: 11px;
+    color: #000;
+}
+
+.marker-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 2px solid rgba(0, 0, 0, 0.3);
+    flex-shrink: 0;
+}
+
+.line-sample {
+    width: 20px;
+    height: 4px;
+    border-radius: 2px;
+    flex-shrink: 0;
 }
 </style>

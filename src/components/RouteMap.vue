@@ -30,9 +30,10 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, nextTick } from 'vue'
+import { ref, computed, onMounted, nextTick, watch } from 'vue'
 import { LMap, LTileLayer, LMarker, LPolyline, LPopup, LIcon, LRectangle, LPolygon } from '@vue-leaflet/vue-leaflet'
 import 'leaflet/dist/leaflet.css'
+import L from 'leaflet'
 import { useMapStore } from '../stores/mapStore'
 import InfoPanel from './InfoPanel.vue'
 import { routingAreaPolygon } from '../data/routingAreaPolygon.js'
@@ -60,6 +61,16 @@ onMounted(() => {
     })
 })
 
+watch(routeData, (newRouteData) => {
+    if (newRouteData) {
+        nextTick(() => {
+            setTimeout(() => {
+                fitRouteBounds()
+            }, 200)
+        })
+    }
+})
+
 // Compute route segments with different colors
 const routeSegments = computed(() => {
     if (!routeData.value || !routeData.value.segments) return []
@@ -79,6 +90,12 @@ const onMapClick = (event) => {
 
 // Helper to get marker color based on index
 const getMarkerColor = (index) => {
+    const mapStore = useMapStore()
+    if (mapStore.selectedRide) {
+        // Ride start (green), User pickup (blue), User destination (orange), Ride end (red)
+        const colors = ['green', 'blue', 'orange', 'red']
+        return colors[index] || 'grey'
+    }
     const colors = ['green', 'orange', 'red']
     return colors[index] || 'blue'
 }
@@ -87,6 +104,40 @@ const getMarkerColor = (index) => {
 const getMarkerIcon = (color) => {
     return `https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-${color}.png`
 }
+
+// fitting the map bounds to show all waypoints and route
+const fitRouteBounds = () => {
+    if (!map.value || !map.value.leafletObject) return
+
+    const leafletMap = map.value.leafletObject
+    const allPoints = []
+
+    waypoints.value.forEach(wp => {
+        allPoints.push([wp.lat, wp.lon])
+    })
+
+    if (routeSegments.value.length > 0) {
+        routeSegments.value.forEach(segment => {
+            segment.coordinates.forEach(coord => {
+                allPoints.push(coord)
+            })
+        })
+    }
+
+    if (allPoints.length > 0) {
+        const bounds = L.latLngBounds(allPoints)
+        leafletMap.fitBounds(bounds, {
+            padding: [50, 50],
+            maxZoom: 15,
+            animate: true,
+            duration: 1
+        })
+    }
+}
+
+defineExpose({
+    fitRouteBounds
+})
 </script>
 
 <style scoped>

@@ -73,9 +73,9 @@
                     </div>
                 </div>
 
-                <button v-if="origin && destination" @click="findRide"
-                    class="w-full mt-6 px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition duration-200">
-                    Find Available Rides
+                <button v-if="origin && destination" @click="findRide" :disabled="isSearching"
+                    class="w-full mt-6 px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition duration-200">
+                    {{ isSearching ? 'Searching...' : 'Find Available Rides' }}
                 </button>
             </div>
         </div>
@@ -84,12 +84,17 @@
 
 <script setup>
 import { ref, computed } from 'vue'
+import { useRouter } from 'vue-router'
 import { useAddressStore } from '../stores/addressStore'
+import { useMapStore } from '../stores/mapStore'
 import AddressSearchBar from '../components/AddressSearchBar.vue'
 import apiClient from '../utils/apiClient'
 import { showToast } from '../utils/BaseToast'
 
+const router = useRouter()
 const addressStore = useAddressStore()
+const mapStore = useMapStore()
+
 const origin = computed({
     get: () => addressStore.origin,
     set: (value) => addressStore.setOrigin(value)
@@ -100,6 +105,7 @@ const destination = computed({
 })
 
 const isGettingLocation = ref(false)
+const isSearching = ref(false)
 
 const handleOriginSelect = (address) => {
     addressStore.setOrigin(address)
@@ -161,9 +167,22 @@ const getUserLocation = () => {
     )
 }
 
-const findRide = () => {
-    console.log('Finding rides from', origin.value, 'to', destination.value)
-    showToast('Searching for available rides...', 'info')
-    // i havent actually implemented anything for this yet
+const findRide = async () => {
+    if (!origin.value || !destination.value) return
+
+    isSearching.value = true
+    try {
+        showToast('Searching for available rides...', 'info')
+        const rides = await mapStore.fetchNearbyRides(origin.value.latitude, origin.value.longitude, 10)
+        if (rides.length === 0) {
+            showToast('No rides found nearby', 'warning')
+        } else {
+            showToast(`Found ${rides.length} available ride${rides.length > 1 ? 's' : ''}`, 'success')
+            router.push('/ride-results')
+        }
+    } catch (error) {
+    } finally {
+        isSearching.value = false
+    }
 }
 </script>
