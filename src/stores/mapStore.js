@@ -5,17 +5,20 @@ import { showToast } from '../utils/BaseToast'
 export const useMapStore = defineStore('map', {
     state: () => ({
         waypoints: [],
-        routeData: null
+        routeData: null,
+        nearbyRides: [],
+        selectedRide: null
     }),
     actions: {
         addWaypoint(waypoint) {
-            if (this.waypoints.length < 3) {
-                this.waypoints.push(waypoint)
-            } else {
-                this.waypoints = [waypoint]
-                this.routeData = null
+            this.waypoints.push(waypoint)
+            if (this.waypoints.length >= 2) {
+                this.fetchRoute()
             }
-            if (this.waypoints.length === 3) {
+        },
+        setWaypoints(waypoints) {
+            this.waypoints = waypoints
+            if (this.waypoints.length >= 2) {
                 this.fetchRoute()
             }
         },
@@ -28,9 +31,37 @@ export const useMapStore = defineStore('map', {
                 showToast('Failed to calculate route. Please try again.', 'error')
             }
         },
+        async fetchNearbyRides(lat, lon, limit = 10) {
+            try {
+                const params = { lat, lon }
+                if (limit) {
+                    params.limit = limit
+                }
+                const response = await apiClient.get('/api/demo/rides/nearest', { params })
+                this.nearbyRides = response.data
+                return response.data
+            } catch (error) {
+                console.error('Error fetching nearby rides:', error)
+                showToast('Failed to fetch nearby rides. Please try again.', 'error')
+                this.nearbyRides = []
+                throw error
+            }
+        },
+        setSelectedRide(ride, userOrigin, userDestination) {
+            this.selectedRide = ride
+            const waypoints = [
+                { lat: ride.startLatitude, lon: ride.startLongitude },
+                { lat: userOrigin.latitude, lon: userOrigin.longitude },
+                { lat: userDestination.latitude, lon: userDestination.longitude },
+                { lat: ride.endLatitude, lon: ride.endLongitude }
+            ]
+            this.setWaypoints(waypoints)
+        },
         clearPoints() {
             this.waypoints = []
             this.routeData = null
+            this.nearbyRides = []
+            this.selectedRide = null
         }
     }
 })

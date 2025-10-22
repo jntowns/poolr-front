@@ -8,6 +8,7 @@ import RegisterPage from '../views/RegisterPage.vue'
 import MapPage from '../views/MapPage.vue'
 import ErrorPage from '../views/ErrorPage.vue'
 import MyProfilePage from '../views/MyProfilePage.vue'
+import RideDetailsPage from '../views/RideDetailsPage.vue'
 
 const router = createRouter({
     history: createWebHistory(),
@@ -35,6 +36,12 @@ const router = createRouter({
             name: 'findRide',
             component: FindRidePage,
             meta: { title: 'Find Ride' }
+        },
+        {
+            path: '/ride-results',
+            name: 'RideResults',
+            component: RideDetailsPage,
+            meta: { title: 'Ride Details' }
         },
         {
             path: '/login',
