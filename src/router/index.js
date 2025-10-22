@@ -40,7 +40,8 @@ const router = createRouter({
         {
             path: '/ride-results',
             name: 'RideResults',
-            component: RideDetailsPage
+            component: RideDetailsPage,
+            meta: { title: 'Ride Details' }
         },
         {
             path: '/login',
