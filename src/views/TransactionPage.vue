@@ -1,6 +1,6 @@
 <template>
     <div class="transaction-page">
-        <div v-if="ride" class="transaction-content">
+        <div v-if="selectedRide" class="transaction-content">
             <section class="transaction-card">
                 <header>
                     <h1>Confirm Your Ride</h1>
@@ -12,19 +12,19 @@
                 <div class="ride-summary">
                     <div class="summary-row">
                         <span class="label">Driver</span>
-                        <span class="value">{{ ride.driverName }}</span>
+                        <span class="value">{{ selectedRide.driverName }}</span>
                     </div>
                     <div class="summary-row">
                         <span class="label">Vehicle</span>
-                        <span class="value">{{ ride.vehicle }} ({{ ride.vehicleColor }})</span>
+                        <span class="value">{{ selectedRide.vehicle }} ({{ selectedRide.vehicleColor }})</span>
                     </div>
                     <div class="summary-row">
                         <span class="label">Pickup</span>
-                        <span class="value">{{ ride.startAddress }}</span>
+                        <span class="value">{{ selectedRide.startAddress }}</span>
                     </div>
                     <div class="summary-row">
                         <span class="label">Destination</span>
-                        <span class="value">{{ ride.endAddress }}</span>
+                        <span class="value">{{ selectedRide.endAddress }}</span>
                     </div>
                     <div v-if="routeData" class="summary-row">
                         <span class="label">Route Distance</span>
@@ -78,50 +78,30 @@
                         </div>
                         <span class="provider-badge">Recommended</span>
                     </div>
-                    <div class="provider-option" :class="{ active: provider === 'card' }" @click="selectProvider('card')">
-                        <div class="provider-details">
-                            <input type="radio" id="card" value="card" v-model="provider" />
-                            <label for="card">
-                                <span class="provider-name">Credit Card</span>
-                                <span class="provider-desc">Visa, Mastercard, Amex</span>
-                            </label>
-                        </div>
-                    </div>
 
                     <div v-if="provider === 'paypal'" class="paypal-panel">
-                        <p class="paypal-note">
-                            This sandbox button simulates a PayPal checkout using test money.
+                        <p v-if="paypalAvailable" class="paypal-note">
+                            Use your PayPal sandbox buyer account to authorize this ride payment.
                         </p>
-                        <button class="paypal-btn" @click="handlePayPalSandbox">
-                            Pay with PayPal Sandbox
-                        </button>
-                    </div>
-
-                    <div v-else class="card-panel">
-                        <div class="form-row">
-                            <label for="card-name">Name on card</label>
-                            <input id="card-name" v-model="cardForm.name" type="text" autocomplete="cc-name" />
+                        <p v-else-if="!isLoadingPaypalConfig" class="paypal-note warning">
+                            {{ paypalError || 'PayPal sandbox is not configured yet on the server. Add credentials to enable checkout.' }}
+                        </p>
+                        <div v-if="isLoadingPaypalConfig" class="paypal-status">
+                            Loading PayPal configuration…
                         </div>
-                        <div class="form-row">
-                            <label for="card-number">Card number</label>
-                            <input id="card-number" v-model="cardForm.number" type="text" inputmode="numeric"
-                                placeholder="4242 4242 4242 4242" autocomplete="cc-number" />
-                        </div>
-                        <div class="form-split">
-                            <div class="form-row">
-                                <label for="card-expiry">Expiry</label>
-                                <input id="card-expiry" v-model="cardForm.expiry" type="text" placeholder="MM/YY"
-                                    autocomplete="cc-exp" />
+                        <div v-if="paypalAvailable">
+                            <div id="paypal-button-container" ref="paypalContainer"></div>
+                            <div v-if="paypalStatus === 'loading'" class="paypal-status">
+                                Loading PayPal buttons…
                             </div>
-                            <div class="form-row">
-                                <label for="card-cvc">CVC</label>
-                                <input id="card-cvc" v-model="cardForm.cvc" type="text" inputmode="numeric"
-                                    autocomplete="cc-csc" />
+                            <div v-if="paypalError" class="paypal-status error">
+                                {{ paypalError }}
+                                <button v-if="paypalStatus === 'error'" type="button" class="retry-btn"
+                                    @click="retryPayPal">
+                                    Retry
+                                </button>
                             </div>
                         </div>
-                        <button class="submit-btn" @click="submitCard" :disabled="isSubmitting">
-                            {{ isSubmitting ? 'Processing…' : 'Pay ' + formatCurrency(pricing?.grossAmount ?? 0) }}
-                        </button>
                     </div>
                 </div>
 
@@ -148,26 +128,29 @@
 </template>
 
 <script setup>
-import { computed, onMounted, reactive, ref } from 'vue'
+import { computed, onMounted, onBeforeUnmount, reactive, ref, watch, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import RouteMap from '../components/RouteMap.vue'
 import { useMapStore } from '../stores/mapStore'
 import { useAddressStore } from '../stores/addressStore'
 import { calculateRidePricing, formatCurrency } from '../utils/pricing'
 import { showToast } from '../utils/BaseToast'
+import apiClient from '../utils/apiClient'
+import { loadPayPalSdk } from '../utils/paypal'
 
 const router = useRouter()
 const mapStore = useMapStore()
 const addressStore = useAddressStore()
 
-const ride = computed(() => mapStore.selectedRide)
+const selectedRide = computed(() => mapStore.selectedRide)
 const routeData = computed(() => mapStore.routeData)
 const pricing = computed(() => {
-    const currentRide = ride.value
+    const currentRide = selectedRide.value
     if (!currentRide) return null
     return currentRide.pricing ?? calculateRidePricing(currentRide.rideDistanceKm)
 })
 const provider = ref('paypal')
+
 const isSubmitting = ref(false)
 const cardForm = reactive({
     name: '',
@@ -176,17 +159,180 @@ const cardForm = reactive({
     cvc: ''
 })
 
+const paypalConfig = ref(null)
+const isLoadingPaypalConfig = ref(false)
+const paypalStatus = ref('idle') // idle | loading | ready | error
+const paypalError = ref(null)
+const paypalContainer = ref(null)
+const paypalButtonsInstance = ref(null)
+const paypalRenderSignature = ref(null)
+let isRenderingPaypal = false
+
+const paypalAvailable = computed(() => {
+    const config = paypalConfig.value
+    return Boolean(config?.enabled && config?.clientId)
+})
+
 const selectProvider = (value) => {
     provider.value = value
 }
 
-const handlePayPalSandbox = () => {
-    if (!pricing.value) {
-        showToast('Please select a ride first.', 'error')
-        return
+const fetchPaypalConfig = async () => {
+    isLoadingPaypalConfig.value = true
+    paypalError.value = null
+    try {
+        const { data } = await apiClient.get('/api/payments/paypal/config')
+        paypalConfig.value = data
+        if (!data?.enabled) {
+            paypalError.value = 'PayPal sandbox is not configured on the server yet.'
+        }
+    } catch (error) {
+        console.error('Failed to load PayPal configuration', error)
+        paypalError.value = 'Unable to load PayPal configuration.'
+    } finally {
+        isLoadingPaypalConfig.value = false
     }
-    showToast('Redirecting to PayPal sandbox (mock checkout).', 'info')
-    window.open('https://www.sandbox.paypal.com/signin', '_blank', 'noopener')
+}
+
+const renderPaypalButtons = async () => {
+    if (provider.value !== 'paypal' || !pricing.value || !paypalAvailable.value) return
+    if (isRenderingPaypal) return
+
+    const config = paypalConfig.value
+    if (!config?.clientId) return
+
+    const amount = pricing.value.grossAmount
+    const currency = pricing.value.currency || config.currency || 'CAD'
+    const signature = `${config.clientId}:${amount}:${currency}`
+    if (paypalStatus.value === 'ready' && paypalRenderSignature.value === signature) return
+
+    isRenderingPaypal = true
+    paypalStatus.value = 'loading'
+    paypalError.value = null
+
+    try {
+        const paypal = await loadPayPalSdk({
+            clientId: config.clientId,
+            currency
+        })
+
+        const ensureButtons = async (sdk, retries = 10) => {
+            if (typeof sdk?.Buttons === 'function') {
+                return
+            }
+            if (retries <= 0) {
+                throw new Error('PayPal Buttons component unavailable.')
+            }
+            await new Promise(resolve => setTimeout(resolve, 50))
+            return ensureButtons(sdk, retries - 1)
+        }
+
+        const waitForButtons = async (sdk, retries = 20) => {
+            if (sdk && typeof sdk.Buttons === 'function') {
+                return
+            }
+            if (retries <= 0) {
+                throw new Error('PayPal Buttons component unavailable.')
+            }
+            await new Promise(resolve => setTimeout(resolve, 50))
+            return waitForButtons(window.paypal, retries - 1)
+        }
+        await waitForButtons(paypal)
+
+        await nextTick()
+        const container = paypalContainer.value
+        if (!container) {
+            throw new Error('PayPal button container not ready.')
+        }
+        container.innerHTML = ''
+
+        if (paypalButtonsInstance.value?.close) {
+            paypalButtonsInstance.value.close()
+        }
+
+        const description = `Poolr ride with ${selectedRide.value?.driverName ?? 'driver'}`
+        const buttons = window.paypal.Buttons({
+            style: {
+                layout: 'vertical',
+                color: 'gold',
+                shape: 'pill',
+                label: 'paypal'
+            },
+            createOrder: async () => {
+                try {
+                    const response = await apiClient.post('/api/payments/paypal/order', {
+                        amount: Number(amount).toFixed(2),
+                        currency,
+                        description
+                    })
+                    return response.data.orderId
+                } catch (error) {
+                    console.error('Failed to create PayPal order', error)
+                    const message = error.response?.data?.message || 'Failed to create PayPal order.'
+                    paypalError.value = message
+                    showToast(message, 'error')
+                    throw error
+                }
+            },
+            onApprove: async (data) => {
+                try {
+                    const response = await apiClient.post(`/api/payments/paypal/order/${data.orderID}/capture`)
+                    const payerName = response.data?.payerName
+                    showToast(
+                        payerName ? `Payment captured successfully. Thanks, ${payerName}!`
+                            : 'Payment captured successfully!',
+                        'success'
+                    )
+                } catch (error) {
+                    console.error('Failed to capture PayPal order', error)
+                    const message = error.response?.data?.message || 'Failed to capture PayPal order.'
+                    paypalError.value = message
+                    showToast(message, 'error')
+                    throw error
+                }
+            },
+            onCancel: () => {
+                showToast('PayPal checkout was cancelled.', 'info')
+            },
+            onError: (err) => {
+                console.error('PayPal encountered an error', err)
+                paypalError.value = err?.message || 'PayPal checkout failed.'
+                paypalStatus.value = 'error'
+            }
+        })
+
+        paypalButtonsInstance.value = buttons
+        await buttons.render(container)
+        paypalRenderSignature.value = signature
+        paypalStatus.value = 'ready'
+    } catch (error) {
+        if (paypalStatus.value !== 'error') {
+            paypalError.value = error?.message || 'Unable to load PayPal checkout.'
+            paypalStatus.value = 'error'
+        }
+    } finally {
+        isRenderingPaypal = false
+    }
+}
+
+const cleanupPaypalButtons = () => {
+    if (paypalButtonsInstance.value?.close) {
+        paypalButtonsInstance.value.close()
+    }
+    paypalButtonsInstance.value = null
+    if (paypalContainer.value) {
+        paypalContainer.value.innerHTML = ''
+    }
+    paypalRenderSignature.value = null
+    if (provider.value !== 'paypal') {
+        paypalStatus.value = 'idle'
+        paypalError.value = null
+    }
+}
+
+const retryPayPal = async () => {
+    paypalRenderSignature.value = null
+    await renderPaypalButtons()
 }
 
 const submitCard = async () => {
@@ -237,8 +383,37 @@ const goToResults = () => {
     router.push('/ride-results')
 }
 
-onMounted(() => {
-    if (!ride.value) {
+watch(
+    () => provider.value,
+    async (value) => {
+        if (value === 'paypal') {
+            await renderPaypalButtons()
+        } else {
+            cleanupPaypalButtons()
+        }
+    }
+)
+
+watch(
+    () => pricing.value?.grossAmount,
+    async () => {
+        if (provider.value === 'paypal') {
+            await renderPaypalButtons()
+        }
+    }
+)
+
+watch(
+    () => paypalConfig.value,
+    async () => {
+        if (provider.value === 'paypal') {
+            await renderPaypalButtons()
+        }
+    }
+)
+
+onMounted(async () => {
+    if (!selectedRide.value) {
         router.replace('/find-ride')
         return
     }
@@ -251,6 +426,14 @@ onMounted(() => {
     if (!addressStore.origin || !addressStore.destination) {
         showToast('Origin or destination is missing. Re-select your ride if the map looks off.', 'info')
     }
+    await fetchPaypalConfig()
+    if (provider.value === 'paypal') {
+        await renderPaypalButtons()
+    }
+})
+
+onBeforeUnmount(() => {
+    cleanupPaypalButtons()
 })
 </script>
 
@@ -428,80 +611,31 @@ onMounted(() => {
     color: #374151;
 }
 
-.paypal-btn {
-    border: none;
-    border-radius: 9999px;
-    background: #ffc439;
-    color: #111827;
-    font-weight: 700;
-    font-size: 15px;
-    padding: 12px 20px;
-    cursor: pointer;
-    transition: transform 0.15s ease, box-shadow 0.15s ease;
-    align-self: flex-start;
+.paypal-note.warning {
+    color: #b45309;
 }
 
-.paypal-btn:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
-}
-
-.paypal-btn:focus {
-    outline: none;
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.3);
-}
-
-.card-panel {
-    margin-top: 16px;
-    padding: 20px;
-    border-radius: 12px;
-    background: #f8fafc;
-    border: 1px solid #d1d5db;
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-}
-
-.form-row {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-}
-
-.form-row label {
-    font-size: 12px;
-    font-weight: 600;
-    color: #4b5563;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-}
-
-.form-row input {
-    padding: 10px 12px;
-    border-radius: 8px;
-    border: 1px solid #cbd5f5;
-    background: #ffffff;
+.paypal-status {
     font-size: 14px;
-    color: #111827;
-    width: 100%;
-    box-sizing: border-box;
+    color: #1f2937;
 }
 
-.form-row input:focus {
-    outline: none;
-    border-color: #2563eb;
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
-}
-
-.form-split {
+.paypal-status.error {
+    color: #b91c1c;
     display: flex;
-    gap: 12px;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
 }
 
-.form-split .form-row {
-    flex: 1;
+.retry-btn {
+    border: none;
+    background: none;
+    color: #2563eb;
+    cursor: pointer;
+    font-weight: 600;
+    padding: 0;
 }
-
 .actions {
     margin-top: 24px;
     display: flex;
@@ -517,23 +651,6 @@ onMounted(() => {
     cursor: pointer;
     background: #e5e7eb;
     color: #111827;
-}
-
-.submit-btn {
-    border: none;
-    border-radius: 8px;
-    padding: 12px 16px;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    background: #2563eb;
-    color: #ffffff;
-    width: 100%;
-}
-
-.submit-btn:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
 }
 
 .map-preview {
