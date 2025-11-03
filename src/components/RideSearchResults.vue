@@ -31,9 +31,22 @@
                             </div>
                         </div>
                     </div>
-                    <div class="text-right">
-                        <p class="text-sm text-gray-500">{{ ride.rideDistanceKm.toFixed(2) }} km</p>
+                    <div class="text-right min-w-[140px]">
+                        <p class="text-lg font-semibold text-gray-900">
+                            {{ ride.pricing ? formatCurrency(ride.pricing.grossAmount) : '—' }}
+                        </p>
+                        <p class="text-xs text-gray-500">
+                            {{ ride.rideDistanceKm.toFixed(2) }} km • Subtotal:
+                            {{ ride.pricing ? formatCurrency(ride.pricing.subtotalAmount) : '—' }}
+                        </p>
                     </div>
+                </div>
+                <div class="mt-3 flex justify-end">
+                    <button
+                        class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1"
+                        @click.stop="$emit('select', ride)">
+                        Use This Ride
+                    </button>
                 </div>
             </div>
         </div>
@@ -41,6 +54,8 @@
 </template>
 
 <script setup>
+import { formatCurrency } from '../utils/pricing'
+
 defineProps({
     rides: {
         type: Array,

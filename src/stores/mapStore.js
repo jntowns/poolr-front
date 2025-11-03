@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import apiClient from '../utils/apiClient'
 import { showToast } from '../utils/BaseToast'
+import { calculateRidePricing } from '../utils/pricing'
 
 export const useMapStore = defineStore('map', {
     state: () => ({
@@ -38,8 +39,12 @@ export const useMapStore = defineStore('map', {
                     params.limit = limit
                 }
                 const response = await apiClient.get('/api/demo/rides/nearest', { params })
-                this.nearbyRides = response.data
-                return response.data
+                const ridesWithPricing = (response.data || []).map(ride => ({
+                    ...ride,
+                    pricing: calculateRidePricing(ride.rideDistanceKm)
+                }))
+                this.nearbyRides = ridesWithPricing
+                return ridesWithPricing
             } catch (error) {
                 console.error('Error fetching nearby rides:', error)
                 showToast('Failed to fetch nearby rides. Please try again.', 'error')
@@ -48,12 +53,18 @@ export const useMapStore = defineStore('map', {
             }
         },
         setSelectedRide(ride, userOrigin, userDestination) {
-            this.selectedRide = ride
+            const rideWithPricing = ride?.pricing
+                ? ride
+                : {
+                    ...ride,
+                    pricing: calculateRidePricing(ride?.rideDistanceKm)
+                }
+            this.selectedRide = rideWithPricing
             const waypoints = [
-                { lat: ride.startLatitude, lon: ride.startLongitude },
+                { lat: rideWithPricing.startLatitude, lon: rideWithPricing.startLongitude },
                 { lat: userOrigin.latitude, lon: userOrigin.longitude },
                 { lat: userDestination.latitude, lon: userDestination.longitude },
-                { lat: ride.endLatitude, lon: ride.endLongitude }
+                { lat: rideWithPricing.endLatitude, lon: rideWithPricing.endLongitude }
             ]
             this.setWaypoints(waypoints)
         },

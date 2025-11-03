@@ -9,9 +9,34 @@
             <div class="detail-item">
                 <strong>Vehicle:</strong> {{ selectedRide.vehicle }} ({{ selectedRide.vehicleColor }})
             </div>
-            <div class="detail-item">
+            <div v-if="selectedRide.distanceFromUserKm != null" class="detail-item">
                 <strong>Distance from you:</strong> {{ selectedRide.distanceFromUserKm.toFixed(2) }} km
             </div>
+            <div v-if="pricing" class="fare-breakdown">
+                <div class="fare-row">
+                    <span>Subtotal</span>
+                    <span>{{ formatCurrency(pricing.subtotalAmount) }}</span>
+                </div>
+                <div class="fare-row">
+                    <span>Tax</span>
+                    <span>{{ formatCurrency(pricing.taxAmount) }}</span>
+                </div>
+                <div class="fare-row">
+                    <span>Platform</span>
+                    <span>{{ formatCurrency(pricing.platformFeeAmount) }}</span>
+                </div>
+                <div class="fare-row">
+                    <span>External</span>
+                    <span>{{ formatCurrency(pricing.externalFeeAmount) }}</span>
+                </div>
+                <div class="fare-total">
+                    <span>Total</span>
+                    <span>{{ formatCurrency(pricing.grossAmount) }}</span>
+                </div>
+            </div>
+            <button v-if="!onTransactionPage" class="payment-btn" @click="goToTransaction">
+                Continue to Payment
+            </button>
         </div>
 
         <p v-else>Click on the map to set waypoint {{ waypoints.length + 1 }}</p>
@@ -62,7 +87,7 @@
             <strong>Duration:</strong> {{ routeData.durationMinutes.toFixed(2) }} minutes
         </div>
 
-        <button v-if="waypoints.length > 0" @click="clearPoints" class="clear-btn">
+        <button v-if="waypoints.length > 0 && !onTransactionPage" @click="clearPoints" class="clear-btn">
             Clear Points
         </button>
     </div>
@@ -70,13 +95,23 @@
 
 <script setup>
 import { computed } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { useMapStore } from '../stores/mapStore'
+import { calculateRidePricing, formatCurrency as formatMoney } from '../utils/pricing'
 
 const mapStore = useMapStore()
+const router = useRouter()
+const route = useRoute()
 
 const waypoints = computed(() => mapStore.waypoints)
 const routeData = computed(() => mapStore.routeData)
 const selectedRide = computed(() => mapStore.selectedRide)
+const onTransactionPage = computed(() => route.name === 'transaction')
+const pricing = computed(() => {
+    const ride = selectedRide.value
+    if (!ride) return null
+    return ride.pricing ?? calculateRidePricing(ride.rideDistanceKm)
+})
 
 const getWaypointLabel = (index) => {
     if (selectedRide.value) {
@@ -89,6 +124,13 @@ const getWaypointLabel = (index) => {
 const clearPoints = () => {
     mapStore.clearPoints()
 }
+
+const goToTransaction = () => {
+    if (!selectedRide.value || onTransactionPage.value) return
+    router.push({ name: 'transaction' })
+}
+
+const formatCurrency = (amount) => formatMoney(amount)
 </script>
 
 <style scoped>
@@ -216,5 +258,46 @@ const clearPoints = () => {
     height: 4px;
     border-radius: 2px;
     flex-shrink: 0;
+}
+
+.fare-breakdown {
+    margin: 12px 0;
+    padding: 10px;
+    background: #ffffff;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 13px;
+    color: #1f2937;
+}
+
+.fare-row,
+.fare-total {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 6px;
+}
+
+.fare-total {
+    margin-top: 10px;
+    font-weight: 600;
+    border-top: 1px solid #e5e7eb;
+    padding-top: 8px;
+}
+
+.payment-btn {
+    width: 100%;
+    margin-top: 12px;
+    padding: 10px;
+    background: #2563eb;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.payment-btn:hover {
+    background: #1d4ed8;
 }
 </style>

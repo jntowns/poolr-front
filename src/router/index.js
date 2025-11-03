@@ -9,6 +9,7 @@ import MapPage from '../views/MapPage.vue'
 import ErrorPage from '../views/ErrorPage.vue'
 import MyProfilePage from '../views/MyProfilePage.vue'
 import RideDetailsPage from '../views/RideDetailsPage.vue'
+import TransactionPage from '../views/TransactionPage.vue'
 
 const router = createRouter({
     history: createWebHistory(),
@@ -42,6 +43,12 @@ const router = createRouter({
             name: 'RideResults',
             component: RideDetailsPage,
             meta: { title: 'Ride Details' }
+        },
+        {
+            path: '/transaction',
+            name: 'transaction',
+            component: TransactionPage,
+            meta: { title: 'Transaction' }
         },
         {
             path: '/login',
