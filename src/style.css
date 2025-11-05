@@ -27,6 +27,23 @@
 .toast-fade-exit {
     animation: fadeOut 0.3s ease-in-out;
 }
+.settings-page {
+    float:left;
+    width:200px;
+    padding: 30px;
+}
+:root {
+    --bg-color: #ffff;
+    --text-color:#222222;
+}
+[data-theme='dark'] {
+    --bg-color:#1e1e1e;
+    --text-color:#f1f1f1;
+}
+body {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+}
 
 @keyframes fadeIn {
     from {
