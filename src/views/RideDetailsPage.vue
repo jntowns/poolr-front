@@ -11,25 +11,19 @@
                 </button>
             </div>
 
-            <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
+            <div class="bg-white rounded-xl shadow-lg p-6">
                 <RideSearchResults :rides="nearbyRides" :selected-ride-id="selectedRide?.rideId" @select="selectRide" />
-            </div>
-
-            <div v-if="selectedRide" ref="mapContainer" class="bg-white rounded-xl shadow-lg p-6">
-                <h2 class="text-xl font-bold text-gray-900 mb-4">Route Map</h2>
-                <RouteMap ref="routeMapRef" />
             </div>
         </div>
     </div>
 </template>
 
 <script setup>
-import { ref, computed, nextTick } from 'vue'
+import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useMapStore } from '../stores/mapStore'
 import { useAddressStore } from '../stores/addressStore'
 import RideSearchResults from '../components/RideSearchResults.vue'
-import RouteMap from '../components/RouteMap.vue'
 import { showToast } from '../utils/BaseToast'
 
 const router = useRouter()
@@ -41,32 +35,14 @@ const selectedRide = computed(() => mapStore.selectedRide)
 const origin = computed(() => addressStore.origin)
 const destination = computed(() => addressStore.destination)
 
-const mapContainer = ref(null)
-const routeMapRef = ref(null)
-
 const selectRide = async (ride) => {
-    console.log("Origin: ", origin.value)
-    console.log("Destination: ", destination.value)
-    mapStore.setSelectedRide(ride, origin.value, destination.value)
-    showToast('Route calculated! Check the map below.', 'success')
-    await nextTick()
-
-    if (mapContainer.value) {
-        const yOffset = -20
-        const element = mapContainer.value
-        const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset
-
-        window.scrollTo({
-            top: y,
-            behavior: 'smooth'
-        })
+    if (!origin.value || !destination.value) {
+        showToast('Please set your pickup and destination before choosing a ride.', 'error')
+        return
     }
-
-    setTimeout(() => {
-        if (routeMapRef.value && routeMapRef.value.fitRouteBounds) {
-            routeMapRef.value.fitRouteBounds()
-        }
-    }, 800)
+    mapStore.setSelectedRide(ride, origin.value, destination.value)
+    showToast('Route calculated! Opening checkout…', 'success')
+    router.push({ name: 'transaction' })
 }
 
 const goBack = () => {
