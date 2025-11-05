@@ -1,11 +1,11 @@
 <template>
     <div class="ride-search-results">
         <h2 class="text-xl font-bold text-gray-900 mb-4">Available Rides</h2>
-        <div v-if="rides.length === 0" class="text-center py-8 text-gray-500">
+        <div v-if="futureRides.length === 0" class="text-center py-8 text-gray-500">
             No rides found. Try adjusting your search criteria.
         </div>
         <div v-else class="space-y-4">
-            <div v-for="ride in rides" :key="ride.rideId"
+            <div v-for="ride in futureRides" :key="ride.rideId"
                 class="p-4 border border-gray-200 rounded-lg hover:border-blue-500 hover:shadow-md transition cursor-pointer"
                 :class="{ 'border-blue-500 bg-blue-50': selectedRideId === ride.rideId }"
                 @click="$emit('select', ride)">
@@ -29,6 +29,9 @@
                                 <span class="text-red-600">●</span>
                                 <span>{{ ride.endAddress }}</span>
                             </div>
+                            <p class="text-lg font-semibold text-gray-800 mb-1">
+                                {{ getDepartureInfo(ride.startTime) }}
+                            </p>
                         </div>
                     </div>
                     <div class="text-right min-w-[140px]">
@@ -54,9 +57,10 @@
 </template>
 
 <script setup>
+import { computed } from 'vue'
 import { formatCurrency } from '../utils/pricing'
 
-defineProps({
+const props = defineProps({
     rides: {
         type: Array,
         required: true
@@ -66,6 +70,28 @@ defineProps({
         default: null
     }
 })
+
+const futureRides = computed(() => {
+    const now = new Date()
+    return props.rides.filter(ride => new Date(ride.startTime) > now)
+})
+
+const getDepartureInfo = (startTime) => {
+    const now = new Date()
+    const start = new Date(startTime)
+    const diffMs = start - now
+    if (diffMs <= 0) return 'Departed'
+    const diffHours = Math.floor(diffMs / (1000 * 60 * 60))
+    const diffMinutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60))
+    let timeString = ''
+    if (diffHours > 0) {
+        timeString = `Leaves in ${diffHours} hour${diffHours > 1 ? 's' : ''}`
+    } else {
+        timeString = `Leaves in ${diffMinutes} minute${diffMinutes > 1 ? 's' : ''}`
+    }
+    const formattedTime = start.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: true })
+    return `${timeString} (${formattedTime})`
+}
 
 defineEmits(['select'])
 </script>
