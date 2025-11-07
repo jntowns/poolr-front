@@ -1,37 +1,43 @@
 <template>
-  <div class="settings-page">
-    <h2 class="title">Settings</h2>
+    <div class="settings-page">
+      <h2 class="title">Settings</h2>
 
-    <div class="box" id="profile">
+      <div class="box" id="profile">
         <label>Profile</label>
-      <router-link to="/settings/profile" class="link-box">
-        Go to Profile
-      </router-link>
-    </div>
-    <div class="box" id="theme">
-      <label>Theme:</label>
-      <select v-model="theme.theme" @change="theme.setTheme(theme.theme)">
-        <option value="light">Light</option>
-        <option value="dark">Dark</option>
-      </select>
+        <router-link to="/settings/profile" class="link-box">
+          Go to Profile
+        </router-link>
+      </div>
+      <div class="box" id="rideHistory">
+        <label>Ride History</label>
+        <router-link to="/settings/rideHistory" class="link-box">
+          Ride History
+        </router-link>
+      </div>
+      <div class="box" id="theme">
+        <label>Theme:</label>
+        <select v-model="theme.theme" @change="theme.setTheme(theme.theme)">
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </div>
+
+      <div class="box" id="appearance">
+        <label>Appearance Size:</label>
+        <select
+          v-model="theme.appearanceSize"
+          @change="theme.setAppearanceSize(theme.appearanceSize)"
+        >
+          <option value="small">Small</option>
+          <option value="medium">Medium</option>
+          <option value="large">Large</option>
+        </select>
+      </div>
     </div>
 
-    <div class="box" id="appearance">
-      <label>Appearance Size:</label>
-      <select
-        v-model="theme.appearanceSize"
-        @change="theme.setAppearanceSize(theme.appearanceSize)"
-      >
-        <option value="small">Small</option>
-        <option value="medium">Medium</option>
-        <option value="large">Large</option>
-      </select>
+    <div class="settingsContent">
+      <router-view />
     </div>
-  </div>
-
-  <div class="settingsContent">
-    <router-view />
-  </div>
 </template>
 
 <script setup>
@@ -98,6 +104,9 @@ const theme = useThemeStore();
   border-left: 4px solid #10b981;
 }
 #profile {
-    border-left: 4px solid #374151;
+  border-left: 4px solid #374151;
+}
+#rideHistory {
+  border-left: 4px solid #FFFF00;
 }
 </style>
