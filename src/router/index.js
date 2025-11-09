@@ -11,6 +11,7 @@ import MyProfilePage from "../views/MyProfilePage.vue";
 import RideDetailsPage from "../views/RideDetailsPage.vue";
 import TransactionPage from "../views/TransactionPage.vue";
 import SettingsPage from "../views/SettingsPage.vue";
+import ReportPage from "../views/reportPage.vue";
 import RideHistoryPage from "../views/RideHistoryPage.vue";
 
 const router = createRouter({
@@ -81,6 +82,12 @@ const router = createRouter({
       name: "rideHistory",
       component: RideHistoryPage,
       meta: { title: "Ride History" },
+    },
+    {
+      path: "/report",
+      name: "report",
+      component: ReportPage,
+      meta: { title: "Report Problem" },
     },
     {
       path: "/settings",
