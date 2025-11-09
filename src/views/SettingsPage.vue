@@ -1,38 +1,49 @@
 <template>
     <div class="settings-page">
-      <h2 class="title">Settings</h2>
+      <h2 class="title">{{ t('settings') }}</h2>
 
       <div class="box" id="profile">
-        <label>Profile</label>
+        <label>{{ t('profile') }}</label>
         <router-link to="/settings/profile" class="link-box">
-          Go to Profile
+          {{ t('goToProfile') }}
         </router-link>
       </div>
       <div class="box" id="rideHistory">
-        <label>Ride History</label>
+        <label>{{ t('rideHistory') }}</label>
         <router-link to="/settings/rideHistory" class="link-box">
-          Ride History
+          {{ t('rideHistory') }}
         </router-link>
       </div>
       <div class="box" id="theme">
-        <label>Theme:</label>
+        <label>{{ t('theme') }}</label>
         <select v-model="theme.theme" @change="theme.setTheme(theme.theme)">
-          <option value="light">Light</option>
-          <option value="dark">Dark</option>
+          <option value="light">{{ t('light') }}</option>
+          <option value="dark">{{ t('dark') }}</option>
         </select>
       </div>
 
       <div class="box" id="appearance">
-        <label>Appearance Size:</label>
+        <label>{{ t('appearanceSize') }}</label>
         <select
           v-model="theme.appearanceSize"
           @change="theme.setAppearanceSize(theme.appearanceSize)"
         >
-          <option value="small">Small</option>
-          <option value="medium">Medium</option>
-          <option value="large">Large</option>
+          <option value="small">{{ t('small') }}</option>
+          <option value="medium">{{ t('medium') }}</option>
+          <option value="large">{{ t('large') }}</option>
         </select>
       </div>
+
+      <div class="box" id="language">
+        <label>{{ t('language') }}</label>
+        <select v-model="selectedLanguage" @change="changeLanguage">
+          <option value="en">English</option>
+          <option value="frCA">Français (Canada)</option>
+        </select>
+      </div>
+
+    
+  
     </div>
 
     <div class="settingsContent">
@@ -41,8 +52,19 @@
 </template>
 
 <script setup>
+import { ref } from 'vue';
 import { useThemeStore } from "../stores/theme";
+import { useI18n} from 'vue-i18n';
 const theme = useThemeStore();
+
+const { t, locale } = useI18n();
+const selectedLanguage = ref(locale.value);
+
+const changeLanguage = () => {
+
+  locale.value = selectedLanguage.value;
+  localStorage.setItem('appLanguage',selectedLanguage.value);
+};
 </script>
 
 <style scoped>
@@ -108,5 +130,8 @@ const theme = useThemeStore();
 }
 #rideHistory {
   border-left: 4px solid #FFFF00;
+}
+#language {
+  border-left: 4px solid #8b5cf6;
 }
 </style>

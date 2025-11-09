@@ -24,6 +24,10 @@
                         class="text-cool-white hover:text-electric-blue transition-colors font-medium pushButton">
                         About
                     </router-link> -->
+                     <router-link to="/settings"
+                        class="text-cool-white hover:text-electric-blue transition-colors font-medium pushButton">
+                        Settings
+                    </router-link>
                 </div>
 
                 <div v-if="username == undefined" class="hidden md:flex items-center space-x-3">
