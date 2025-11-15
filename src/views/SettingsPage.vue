@@ -1,6 +1,6 @@
 <template>
   <div class="settings-wrapper">
-    <div class="settings-page">
+    <div class="settings-page" :class="{ dark: theme.theme === 'dark' }">
       <h2 class="title">{{ t("settings") }}</h2>
 
       <div class="box" id="profile">
@@ -66,10 +66,6 @@ const changeLanguage = () => {
 </script>
 
 <style scoped>
-.settings-Wrapper {
-  display: flex;
-  width: 100%;
-}
 .settings-page {
   display: flex;
   flex-direction: column;
@@ -79,6 +75,77 @@ const changeLanguage = () => {
   border-right: 1px solid #e5e7eb;
   padding: 1.5rem;
   box-shadow: 2px 0 6px rgba(0, 0, 0, 0.05);
+}
+
+.settings-page.dark {
+  background-color: #111827 !important;
+  border-right: 1px solid #1f2937 !important;
+}
+
+.settings-page.dark .box {
+  background-color: #1f2937 !important;
+}
+
+.settings-page.dark {
+  background-color: #111827 !important;
+  border-right: 1px solid #1f2937 !important;
+}
+
+.settings-page.dark .box {
+  background-color: #1f2937 !important;
+}
+
+.settings-page.dark .link-box {
+  color: #f9fafb !important;
+}
+
+.box {
+  background-color: #fff;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+}
+
+.dark .box label {
+  color: #f9fafb;
+}
+.box:hover {
+  background-color: #374151;
+}
+
+.box:hover {
+  background-color: #f0f4ff;
+  transform: translateX(3px);
+}
+
+.link-box {
+  color: #1f2937;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.link-box:hover {
+  text-decoration: underline;
+}
+
+.box label {
+  display: block;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 0.5rem;
+}
+
+.box select {
+  width: 100%;
+  padding: 0.4rem;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background-color: #fff;
+  font-size: 0.95rem;
+  color: #111827;
+  cursor: pointer;
 }
 
 .settings-content {
