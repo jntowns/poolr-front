@@ -93,12 +93,24 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { storeToRefs } from 'pinia'
 import { useIdentityStore } from '../stores/identityStore'
 import { showToast } from '../utils/BaseToast'
 import demoLicenseImg from '../assets/images/license.jpg'
 
-const router = useRouter()
 const identityStore = useIdentityStore()
+
+const { id, realName, username, email, phoneNumber, vehicleModel } = storeToRefs(identityStore)
+const localUserData = ref({
+    id: "",
+    realName: "",
+    username: "",
+    email: "",
+    phoneNumber: "",
+    vehicleModel: ""
+})
+const router = useRouter()
+
 
 const selectedFile = ref(null)
 const isVerifying = ref(false)
@@ -123,7 +135,7 @@ const goToLogin = () => {
 }
 
 const goToOfferRide = () => {
-    router.push('/')
+    router.push('/offer-ride')
 }
 
 const handleFileSelect = (event) => {

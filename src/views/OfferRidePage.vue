@@ -18,13 +18,14 @@
 
             <!-- not verified -->
             <div v-else-if="!isVerified" class="bg-white rounded-lg p-8 shadow-md text-center">
+                <!-- Maybe this should just redirect but this seems okay for now -->
                 <h2 class="text-2xl font-semibold mb-4 text-gray-800">Start Offering Rides</h2>
                 <p class="mb-6 text-gray-600">Looking to help others in their commute?</p>
                 <p class="mb-6 text-gray-600">To register as a driver with our service, you will need to provide a valid driver's license for the area you will be driving in. Any images you upload will be removed from our servers after verification is complete.
                 </p>
                 <button @click="goToVerify"
                     class="bg-blue-600 text-white px-6 py-3 rounded hover:bg-blue-700 transition-colors">
-                    Create Account / Log In
+                    Submit your License
                 </button>
             </div>
 
