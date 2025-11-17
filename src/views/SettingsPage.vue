@@ -1,69 +1,70 @@
 <template>
-    <div class="settings-page">
-      <h2 class="title">{{ t('settings') }}</h2>
+  <div class="settings-page">
+    <h2 class="title">{{ t("settings") }}</h2>
 
-      <div class="box" id="profile">
-        <label>{{ t('profile') }}</label>
-        <router-link to="/settings/profile" class="link-box">
-          {{ t('goToProfile') }}
-        </router-link>
-      </div>
-      <div class="box" id="rideHistory">
-        <label>{{ t('rideHistory') }}</label>
-        <router-link to="/settings/rideHistory" class="link-box">
-          {{ t('rideHistory') }}
-        </router-link>
-      </div>
-      <div class="box" id="theme">
-        <label>{{ t('theme') }}</label>
-        <select v-model="theme.theme" @change="theme.setTheme(theme.theme)">
-          <option value="light">{{ t('light') }}</option>
-          <option value="dark">{{ t('dark') }}</option>
-        </select>
-      </div>
-
-      <div class="box" id="appearance">
-        <label>{{ t('appearanceSize') }}</label>
-        <select
-          v-model="theme.appearanceSize"
-          @change="theme.setAppearanceSize(theme.appearanceSize)"
-        >
-          <option value="small">{{ t('small') }}</option>
-          <option value="medium">{{ t('medium') }}</option>
-          <option value="large">{{ t('large') }}</option>
-        </select>
-      </div>
-
-      <div class="box" id="language">
-        <label>{{ t('language') }}</label>
-        <select v-model="selectedLanguage" @change="changeLanguage">
-          <option value="en">English</option>
-          <option value="frCA">Français (Canada)</option>
-        </select>
-      </div>
-
-    
-  
+    <div class="box" id="profile">
+      <label>{{ t("profile") }}</label>
+      <router-link to="/settings/profile" class="link-box">
+        {{ t("goToProfile") }}
+      </router-link>
+    </div>
+    <div class="box" id="rideHistory">
+      <label>{{ t("rideHistory") }}</label>
+      <router-link to="/settings/rideHistory" class="link-box">
+        {{ t("rideHistory") }}
+      </router-link>
+    </div>
+    <div class="box" id="theme">
+      <label>{{ t("theme") }}</label>
+      <select v-model="theme.theme" @change="theme.setTheme(theme.theme)">
+        <option value="light">{{ t("light") }}</option>
+        <option value="dark">{{ t("dark") }}</option>
+      </select>
     </div>
 
-    <div class="settingsContent">
-      <router-view />
+    <div class="box" id="appearance">
+      <label>{{ t("appearanceSize") }}</label>
+      <select
+        v-model="theme.appearanceSize"
+        @change="theme.setAppearanceSize(theme.appearanceSize)"
+      >
+        <option value="small">{{ t("small") }}</option>
+        <option value="medium">{{ t("medium") }}</option>
+        <option value="large">{{ t("large") }}</option>
+      </select>
     </div>
+
+    <div class="box" id="language">
+      <label>{{ t("language") }}</label>
+      <select v-model="selectedLanguage" @change="changeLanguage">
+        <option value="en">English</option>
+        <option value="frCA">Français (Canada)</option>
+      </select>
+    </div>
+
+    <div class="box" id="report">
+      <label>Report a Problem</label>
+      <router-link to="/settings/report" class="link-box"> Report </router-link>
+    </div>
+  </div>
+
+  <div class="settingsContent">
+    <router-view />
+  </div>
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref } from "vue";
 import { useThemeStore } from "../stores/theme";
-import { useI18n} from 'vue-i18n';
+import { useI18n } from "vue-i18n";
 const theme = useThemeStore();
 
 const { t, locale } = useI18n();
 const selectedLanguage = ref(locale.value);
 
 const changeLanguage = () => {
-
   locale.value = selectedLanguage.value;
-  localStorage.setItem('appLanguage',selectedLanguage.value);
+  localStorage.setItem("appLanguage", selectedLanguage.value);
 };
 </script>
 
@@ -129,7 +130,7 @@ const changeLanguage = () => {
   border-left: 4px solid #374151;
 }
 #rideHistory {
-  border-left: 4px solid #FFFF00;
+  border-left: 4px solid #ffff00;
 }
 #language {
   border-left: 4px solid #8b5cf6;

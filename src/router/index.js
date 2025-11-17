@@ -107,6 +107,12 @@ const router = createRouter({
           component: RideHistoryPage,
           meta: { title: "Ride History" },
         },
+        {
+          path: "report",
+          name: "report",
+          component: ReportPage,
+          meta: { title: "Report Error" },
+        },
       ],
     },
     {
