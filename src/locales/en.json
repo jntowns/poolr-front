@@ -1,0 +1,14 @@
+{
+  "settings": "Settings",
+  "profile": "Profile",
+  "rideHistory": "Ride History",
+  "theme": "Theme",
+  "language": "Language",
+  "goToProfile": "Go to Profile",
+  "appearanceSize": "Appearance Size",
+  "small":"Small",
+  "medium": "Medium",
+  "large": "Large",
+  "light": "Light",
+  "dark": "Dark"
+}

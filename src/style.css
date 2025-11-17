@@ -27,6 +27,31 @@
 .toast-fade-exit {
     animation: fadeOut 0.3s ease-in-out;
 }
+.settings-page {
+    float:left;
+    width:200px;
+    padding: 30px;
+}
+:root {
+    --bg-color: #ffff;
+    --text-color:#222222;
+    --feature-section-bg: #f8f9fa;
+    --page-bg: #ffffff;
+    --title-color:#191970;
+
+    
+}
+[data-theme='dark'] {
+    --bg-color:#1e1e1e;
+    --text-color:#f1f1f1;
+    --feature-section-bg: #222222;
+    --page-bg: #222222;
+    --title-color:#f1f1f1;
+}
+body {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+}
 
 @keyframes fadeIn {
     from {
