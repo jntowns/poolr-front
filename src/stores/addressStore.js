@@ -10,13 +10,19 @@ export const useAddressStore = defineStore('address', {
         error: null
     }),
     actions: {
-        async searchAddresses(query, limit = 10) {
+        async searchAddresses(query, limit = 10, userLat = null, userLon = null) {
             this.isLoading = true
             this.error = null
 
             try {
-                const response = await apiClient.get('/api/addresses/autocomplete', {
-                    params: { query, limit }
+                const params = { query, limit }
+                if (userLat !== null && userLon !== null) {
+                    params.userLat = userLat
+                    params.userLon = userLon
+                }
+
+                const response = await apiClient.get('/api/search/autocomplete', {
+                    params
                 })
 
                 const results = response.data
@@ -32,7 +38,7 @@ export const useAddressStore = defineStore('address', {
 
         async getAddressById(id) {
             try {
-                const response = await apiClient.get(`/api/addresses/${id}`)
+                const response = await apiClient.get(`/api/search/${id}`)
                 return response.data
             } catch (err) {
                 this.error = 'Failed to fetch address details'
