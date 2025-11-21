@@ -12,6 +12,8 @@ import RideDetailsPage from "../views/RideDetailsPage.vue";
 import TransactionPage from "../views/TransactionPage.vue";
 import SettingsPage from "../views/SettingsPage.vue";
 import RideHistoryPage from "../views/RideHistoryPage.vue";
+import TicketsPage from "../views/TicketsPage.vue";
+
 
 const router = createRouter({
   history: createWebHistory(),
@@ -39,6 +41,12 @@ const router = createRouter({
       name: "findRide",
       component: FindRidePage,
       meta: { title: "Find Ride" },
+    },
+    {
+      path: "/seeing-tickets",
+      name: "Tickets",
+      component: TicketsPage,
+      meta: { title: "Tickets Page" },
     },
     {
       path: "/ride-results",

@@ -2,14 +2,22 @@ import { ref, computed, watch, nextTick } from 'vue'
 import { loadPayPalSdk } from '../utils/paypal'
 import { showToast } from '../utils/BaseToast'
 import apiClient from '../utils/apiClient'
+import router from "../router/index.js";
+import { useMapStore } from '../stores/mapstore'
+
 
 export function usePayPal() {
+
+
+
     const paypalConfig = ref(null)
     const isLoadingPaypalConfig = ref(false)
     const paypalStatus = ref('idle')
     const paypalError = ref(null)
     const paypalButtonsInstance = ref(null)
     const paypalRenderSignature = ref(null)
+    const mapStore = useMapStore()
+
     let isRenderingPaypal = false
 
     const paypalAvailable = computed(() => {
@@ -100,11 +108,37 @@ export function usePayPal() {
                     try {
                         const response = await apiClient.post(`/api/payments/paypal/order/${data.orderID}/capture`)
                         const payerName = response.data?.payerName
+
+                        const ride = mapStore.selectedRide
+                        if (ride && ride.rideId) {
+                            try {
+                                await apiClient.post('/api/tickets', {
+                                    rideId: ride.rideId
+                                })
+                            } catch (ticketError) {
+                                console.error('Failed to create ticket after payment', ticketError)
+
+                                showToast('Payment succeeded but ticket could not be created.', 'error')
+                            }
+                        } else {
+                            console.warn('No selected ride found when trying to create ticket.')
+                        }
+
+
                         showToast(
-                            payerName ? `Payment captured successfully. Thanks, ${payerName}!`
-                                : 'Payment captured successfully!',
+                            payerName
+                                ? `Payment captured successfully. Thanks, ${payerName}!
+Redirecting to your tickets`
+                                : 'Payment captured successfully!' +
+                                '/redirecting to your tickets',
                             'success'
+
                         )
+                        setTimeout(async function () {
+                            await router.push('/seeing-tickets')
+                        }, 3000)
+
+
                     } catch (error) {
                         console.error('Failed to capture PayPal order', error)
                         const message = error.response?.data?.message || 'Failed to capture PayPal order.'
@@ -113,6 +147,7 @@ export function usePayPal() {
                         throw error
                     }
                 },
+
                 onCancel: () => {
                     showToast('PayPal checkout was cancelled.', 'info')
                 },
