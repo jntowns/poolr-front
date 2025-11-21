@@ -27,27 +27,31 @@
 .toast-fade-exit {
     animation: fadeOut 0.3s ease-in-out;
 }
+
 .settings-page {
-    float:left;
-    width:200px;
+    float: left;
+    width: 200px;
     padding: 30px;
 }
+
 :root {
     --bg-color: #ffff;
-    --text-color:#222222;
+    --text-color: #222222;
     --feature-section-bg: #f8f9fa;
     --page-bg: #ffffff;
-    --title-color:#191970;
+    --title-color: #191970;
 
-    
+
 }
+
 [data-theme='dark'] {
-    --bg-color:#1e1e1e;
-    --text-color:#f1f1f1;
+    --bg-color: #1e1e1e;
+    --text-color: #f1f1f1;
     --feature-section-bg: #222222;
     --page-bg: #222222;
-    --title-color:#f1f1f1;
+    --title-color: #f1f1f1;
 }
+
 body {
     background-color: var(--bg-color);
     color: var(--text-color);
@@ -70,5 +74,19 @@ body {
 
     to {
         opacity: 0;
+    }
+}
+
+@layer components {
+    .form-input {
+        @apply block w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-base text-slate-900 outline-none placeholder:text-slate-400 focus:border-electric-blue focus:ring-2 focus:ring-electric-blue/20 transition-all duration-200 sm:text-sm/6;
+    }
+
+    .form-label {
+        @apply block text-sm/6 font-medium text-slate-700;
+    }
+
+    .btn-primary {
+        @apply flex w-full justify-center rounded-xl bg-slate-900 px-3 py-2.5 text-sm/6 font-semibold text-white shadow-lg shadow-slate-200 hover:bg-slate-800 hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-900;
     }
 }

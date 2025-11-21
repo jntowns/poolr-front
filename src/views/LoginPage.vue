@@ -4,20 +4,7 @@ import LoginForm from '../components/LoginForm.vue';
 </script>
 
 <template>
-    <div class="login-container">
+    <div class="flex-grow flex flex-col justify-center items-center bg-slate-50 py-12 sm:px-6 lg:px-8">
         <LoginForm />
     </div>
 </template>
-
-<style scoped>
-.login-container {
-    padding: 0;
-    max-width: 100%;
-    width: 100%;
-    box-sizing: border-box;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-}
-</style>

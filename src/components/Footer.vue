@@ -1,10 +1,15 @@
 <template>
-  <v-footer class="d-flex flex-column">
-    <div class="bg-midnight-blue border-b border-slate-blue ">
-        <div class="flex-1-0-100 text-center mt-2 text-cool-white ">
-            {{ new Date().getFullYear() }} — <strong>Poolr Group</strong>
+    <footer class="bg-white border-t border-slate-100 py-8">
+        <div class="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div class="text-slate-500 text-sm">
+                &copy; {{ new Date().getFullYear() }} Poolr Group. All rights reserved.
+            </div>
+            <!-- TODO add actual pages for these -->
+            <div class="flex gap-6 text-slate-500 text-sm font-medium">
+                <a href="#" class="hover:text-slate-900 transition-colors">Privacy</a>
+                <a href="#" class="hover:text-slate-900 transition-colors">Terms</a>
+                <a href="#" class="hover:text-slate-900 transition-colors">Contact</a>
+            </div>
         </div>
-    </div>
- 
-  </v-footer>
+    </footer>
 </template>

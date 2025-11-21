@@ -1,70 +1,66 @@
 <template>
     <div
-        class="flex min-h-full max-w-md min-w-md border border-gray-200 rounded-lg flex-col justify-center px-6 py-12 lg:px-8 bg-sky-900">
+        class="flex min-h-full max-w-md w-full border border-slate-100 rounded-2xl flex-col justify-center px-6 py-12 lg:px-8 bg-white shadow-2xl">
         <div class="sm:mx-auto sm:w-full sm:max-w-sm">
-             <img :src=poolrLogo alt="Poolr Logo"
-                class="mx-auto h-25 w-auto rounded-lg" />
-            <h2 class="mt-10 text-center text-2xl/9 font-bold tracking-tight text-white">Sign up with Poolr</h2>
+            <img :src=poolrLogo alt="Poolr Logo" class="mx-auto h-25 w-auto rounded-xl shadow-md" />
+            <h2 class="mt-10 text-center text-2xl/9 font-bold tracking-tight text-slate-900">Sign up with Poolr</h2>
         </div>
 
         <div class="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
             <form @submit.prevent="submitForm" class="space-y-6">
                 <div>
-                    <label for="realName" class="block text-sm/6 font-medium text-gray-100">Full Name</label>
+                    <label for="realName" class="form-label">Full Name</label>
                     <div class="mt-2">
                         <input v-model="register.realName" id="realName" type="text" name="realName" required
-                            autocomplete="text"
-                            class="block w-full rounded-md bg-white/5 px-3 py-1.5 text-base text-white outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500 sm:text-sm/6" />
+                            autocomplete="text" class="form-input" />
                     </div>
                 </div>
 
                 <div>
-                    <label for="username" class="block text-sm/6 font-medium text-gray-100">Username</label>
+                    <label for="username" class="form-label">Username</label>
                     <div class="mt-2">
                         <input v-model="register.username" id="username" type="text" name="username" required
-                            autocomplete="text"
-                            class="block w-full rounded-md bg-white/5 px-3 py-1.5 text-base text-white outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500 sm:text-sm/6" />
+                            autocomplete="text" class="form-input" />
                     </div>
                 </div>
 
                 <div>
-                    <label for="phoneNumber" class="block text-sm/6 font-medium text-gray-100">Phone number</label>
+                    <label for="phoneNumber" class="form-label">Phone number</label>
                     <div class="mt-2">
                         <input v-model="register.phoneNumber" id="phoneNumber" type="tel" name="phoneNumber" required
-                            autocomplete="tel"
-                            class="block w-full rounded-md bg-white/5 px-3 py-1.5 text-base text-white outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500 sm:text-sm/6" />
+                            autocomplete="tel" class="form-input" />
                     </div>
                 </div>
 
                 <div>
-                    <label for="email" class="block text-sm/6 font-medium text-gray-100">Email address</label>
+                    <label for="email" class="form-label">Email address</label>
                     <div class="mt-2">
                         <input v-model="register.email" id="email" type="email" name="email" required
-                            autocomplete="email"
-                            class="block w-full rounded-md bg-white/5 px-3 py-1.5 text-base text-white outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500 sm:text-sm/6" />
+                            autocomplete="email" class="form-input" />
                     </div>
                 </div>
 
                 <div>
                     <div class="flex items-center justify-between">
-                        <label for="password" class="block text-sm/6 font-medium text-gray-100">Password</label>
+                        <label for="password" class="form-label">Password</label>
                         <div class="text-sm">
-                            <a href="#" class="font-semibold text-indigo-400 hover:text-indigo-300">Forgot password?</a>
+                            <a href="#" class="font-semibold text-electric-blue hover:text-blue-600">Forgot
+                                password?</a>
                         </div>
                     </div>
                     <div class="mt-2">
                         <input v-model="register.password" id="password" type="password" name="password" required
-                            autocomplete="current-password"
-                            class="block w-full rounded-md bg-white/5 px-3 py-1.5 text-base text-white outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500 sm:text-sm/6" />
+                            autocomplete="current-password" class="form-input" />
                     </div>
                 </div>
 
                 <div>
-                    <button type="submit"
-                        class="flex w-full justify-center rounded-md bg-indigo-500 px-3 py-1.5 text-sm/6 font-semibold text-white hover:bg-indigo-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500">Sign
+                    <button type="submit" class="btn-primary">Sign
                         up</button>
                 </div>
             </form>
+
+            <DemoAccountButton />
         </div>
     </div>
 </template>
@@ -76,6 +72,7 @@ import { showToast } from '../utils/BaseToast'
 import { reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import { useIdentityStore } from '../stores/identityStore'
+import DemoAccountButton from './DemoAccountButton.vue'
 
 const identityStore = useIdentityStore();
 const router = useRouter()

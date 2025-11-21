@@ -23,7 +23,7 @@ export const useIdentityStore = defineStore('identity', {
                 this.vehicleModel = response.data.vehicleModel;
             } catch (error) {
                 console.error('Error fetching user information:', error)
-                showToast('Failed to fetch user information', 'error');
+                // showToast('Failed to fetch user information', 'error');
             }
         },
         setIdentity(user) {
