@@ -17,6 +17,13 @@
       </div>
 
       <div class="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
+        <div
+          v-if="successMessage"
+          class="p-3 mb-4 rounded-md bg-green-600 text-white text-center"
+        >
+          {{ successMessage }}
+        </div>
+
         <form @submit.prevent="submitForm" class="space-y-6">
           <div>
             <label for="name" class="block text-sm/6 font-medium text-gray-100"
@@ -147,14 +154,19 @@
 import poolrLogo from "../assets/images/poolr-logo.png";
 import apiClient from "../utils/apiClient";
 import { showToast } from "../utils/BaseToast";
-import { reactive } from "vue";
+import { reactive, ref } from "vue";
 import { useRouter } from "vue-router";
 import { useIdentityStore } from "../stores/identityStore";
 
 const identityStore = useIdentityStore();
+const successMessage = ref("");
 const router = useRouter();
 
 const form = reactive({
+  name: "",
+  email: "",
+  phone: "",
+  category: "App Bug",
   description: "",
 });
 
@@ -169,8 +181,8 @@ const submitForm = async () => {
 
     if (response.status != 200) throw new Error("Failed to submit report");
 
-    showToast("Report submitted successfully", "success");
-    router.push("/");
+    successMessage.value = "Report submitted successfully!";
+    showToast("Report submitted successfully!", "success");
   } catch (err) {
     console.error(err);
     showToast("There was a problem submitting your report.", "error");
