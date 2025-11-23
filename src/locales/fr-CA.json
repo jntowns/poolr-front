@@ -14,7 +14,7 @@
   "dark": "Sombre",
   "whyChoose":"Pourquoi Choisir Poolr?",
   "getStarted":"Commencez",
-  "homeP":"artagez des trajets, économisez, réduisez les émissions",
+  "homeP":"Partagez des trajets, économisez, réduisez les émissions",
   "homeDivOneH":"Économisez de l’argent",
   "homeDivOneP":"Partagez les coûts et réduisez vos frais de déplacement",
   "homeDivTwoH":"Devenez Écolo",
@@ -68,7 +68,10 @@
   "transaction_pickRideFirst": "Veuillez choisir un trajet avant de continuer vers l’écran de transaction.",
   "transaction_backToResults": "Retour aux résultats de trajets",
   "transaction_missingOriginDestination": "Le point de départ ou la destination est manquant. Veuillez re-sélectionner votre trajet si la carte semble incorrecte.",
-  "back": "Retour"
+  "back": "Retour",
+  "backToSearch": "Retour à la recherche",
+  "setPickupAndDestination": "Veuillez définir votre point de départ et votre destination avant de choisir un trajet.",
+  "routeCalculated": "Itinéraire calculé! Ouverture du paiement…"
 
 
 

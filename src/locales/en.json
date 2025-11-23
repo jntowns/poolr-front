@@ -67,7 +67,11 @@
   "transaction_pickRideFirst": "Please pick a ride before continuing to the transaction screen.",
   "transaction_backToResults": "Back to Ride Results",
   "transaction_missingOriginDestination": "Origin or destination is missing. Re-select your ride if the map looks off.",
-  "back": "Back"
+  "back": "Back",
+  "backToSearch": "Back to Search",
+  "setPickupAndDestination": "Please set your pickup and destination before choosing a ride.",
+  "routeCalculated": "Route calculated! Opening checkout…"
+  
 
 
 
