@@ -11,6 +11,16 @@
   "medium": "Moyen",
   "large": "Grand",
   "light": "Clair",
-  "dark": "Sombre"
+  "dark": "Sombre",
+  "whyChoose":"Pourquoi Choisir Poolr?",
+  "getStarted":"Commencez",
+  "homeP":"artagez des trajets, économisez, réduisez les émissions",
+  "homeDivOneH":"Économisez de l’argent",
+  "homeDivOneP":"Partagez les coûts et réduisez vos frais de déplacement",
+  "homeDivTwoH":"Devenez Écolo",
+  "homeDivTwoP":"Réduisez votre empreinte carbone ensemble",
+  "homeDivThreeH":"Rencontrez des gens",
+  "homeDivThreeP": "Connectez-vous avec d’autres usagers"
+
 
 }

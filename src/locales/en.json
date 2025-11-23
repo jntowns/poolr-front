@@ -10,5 +10,15 @@
   "medium": "Medium",
   "large": "Large",
   "light": "Light",
-  "dark": "Dark"
+  "dark": "Dark",
+  "whyChoose": "Why Choose Poolr?",
+  "getStarted": "Get Started",
+  "homeP": "Share rides, save money, reduce emissions",
+  "homeDivOneH":"Save Money",
+  "homeDivOneP":"Split costs and reduce your commute expenses",
+  "homeDivTwoH":"Go Green",
+  "homeDivTwoP":"Reduce your carbon footprint together",
+  "homeDivThreeH":"Meet People",
+  "homeDivThreeP": "Connect with fellow commuters"
+
 }
