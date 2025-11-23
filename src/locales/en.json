@@ -19,6 +19,25 @@
   "homeDivTwoH":"Go Green",
   "homeDivTwoP":"Reduce your carbon footprint together",
   "homeDivThreeH":"Meet People",
-  "homeDivThreeP": "Connect with fellow commuters"
+  "homeDivThreeP": "Connect with fellow commuters",
+  "findRideH":"Find a Ride",
+  "fromLabel": "From (Your Location)",
+  "fromPlaceholder": "Enter pickup location…",
+  "useMyLocation": "Use My Current Location",
+  "toLabel": "To (Destination)",
+  "toPlaceholder": "Enter destination…",
+  "pickupLocation": "Pickup Location",
+  "destinationLabel": "Destination",
+  "searching": "Searching...",
+  "searchAvailableRides": "Search Available Rides",
+  "toast_geolocationNotSupported": "Geolocation is not supported by your browser",
+  "toast_locationFound": "Location found!",
+  "toast_locationError": "Unable to get your location. Please enter the address manually.",
+  "toast_reverseError": "Unable to get the address from the location",
+  "toast_searchingRides": "Searching for available rides...",
+  "toast_noRides": "No rides found nearby",
+  "toast_foundRides": "Rides found",
+  "toast_error": "An error occurred"
+
 
 }

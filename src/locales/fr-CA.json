@@ -20,7 +20,25 @@
   "homeDivTwoH":"Devenez Écolo",
   "homeDivTwoP":"Réduisez votre empreinte carbone ensemble",
   "homeDivThreeH":"Rencontrez des gens",
-  "homeDivThreeP": "Connectez-vous avec d’autres usagers"
+  "homeDivThreeP": "Connectez-vous avec d’autres usagers",
+  "findRideH":"Trouvez un trajet",
+  "fromLabel": "De (Votre emplacement)",
+  "fromPlaceholder": "Entrez l’emplacement de départ…",
+  "useMyLocation": "Utiliser ma position actuelle",
+  "toLabel": "À (Destination)",
+  "toPlaceholder": "Entrez la destination…",
+  "pickupLocation": "Lieu de prise en charge",
+  "destinationLabel": "Destination",
+  "searching": "Recherche...",
+  "searchAvailableRides": "Rechercher les trajets disponibles",
+  "toast_geolocationNotSupported": "La géolocalisation n’est pas supportée par votre navigateur",
+  "toast_locationFound": "Position trouvée!",
+  "toast_locationError": "Impossible d’obtenir votre position. Veuillez entrer l’adresse manuellement.",
+  "toast_reverseError": "Impossible d’obtenir l’adresse à partir de la position",
+  "toast_searchingRides": "Recherche de trajets disponibles...",
+  "toast_noRides": "Aucun trajet trouvé à proximité",
+  "toast_foundRides": "Trajets trouvés",
+  "toast_error": "Une erreur s’est produite"
 
 
 }

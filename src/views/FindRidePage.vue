@@ -2,17 +2,19 @@
   <div class="min-h-screen py-12 px-4 sm:px-6 lg:px-8">
     <div class="max-w-2xl mx-auto">
       <div class="bg-white rounded-xl shadow-lg p-8">
-        <h1 class="text-3xl font-bold text-gray-900 mb-6">Find a Ride</h1>
+        <h1 class="text-3xl font-bold text-gray-900 mb-6">
+          {{ t("findRideH") }}
+        </h1>
 
         <div class="mb-6">
           <label class="block text-sm font-medium text-gray-700 mb-2">
-            From (Your Location)
+            {{ t("fromLabel") }}
           </label>
           <div class="flex gap-2">
             <div class="flex-1">
               <AddressSearchBar
                 v-model="origin"
-                placeholder="Enter pickup location..."
+                :placeholder="t('fromPlaceholder')"
                 :min-chars="2"
                 :debounce-delay="300"
                 :max-results="10"
@@ -24,7 +26,7 @@
               @click="getUserLocation"
               :disabled="isGettingLocation"
               class="px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition duration-200 flex items-center gap-2"
-              title="Use my current location"
+              :title="t('useMyLocation')"
             >
               <svg
                 v-if="!isGettingLocation"
@@ -72,11 +74,11 @@
 
         <div class="mb-6">
           <label class="block text-sm font-medium text-gray-700 mb-2">
-            To (Destination)
+            {{ t("toLabel") }}
           </label>
           <AddressSearchBar
             v-model="destination"
-            placeholder="Enter destination..."
+            :placeholder="t('toPlaceholder')"
             :min-chars="2"
             :debounce-delay="300"
             :max-results="10"
@@ -100,7 +102,7 @@
               >
                 <circle cx="10" cy="10" r="8" />
               </svg>
-              Pickup Location
+              {{ t("pickupLocation") }}
             </h3>
             <p class="text-sm text-gray-900">{{ origin.fullAddress }}</p>
           </div>
@@ -131,7 +133,7 @@
                   d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
                 />
               </svg>
-              Destination
+              {{ t("destinationLabel") }}
             </h3>
             <p class="text-sm text-gray-900">{{ destination.fullAddress }}</p>
           </div>
@@ -143,7 +145,7 @@
           :disabled="isSearching"
           class="w-full mt-6 px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition duration-200"
         >
-          {{ isSearching ? "Searching..." : "Find Available Rides" }}
+          {{ isSearching ? t("searching") : t("searchAvailableRides") }}
         </button>
       </div>
     </div>
@@ -158,6 +160,13 @@ import { useMapStore } from "../stores/mapStore";
 import AddressSearchBar from "../components/AddressSearchBar.vue";
 import apiClient from "../utils/apiClient";
 import { showToast } from "../utils/BaseToast";
+import { useThemeStore } from "../stores/theme";
+import { useI18n } from "vue-i18n";
+
+const theme = useThemeStore();
+
+const { t, locale } = useI18n();
+const selectedLanguage = ref(locale.value);
 
 const router = useRouter();
 const addressStore = useAddressStore();
@@ -197,7 +206,7 @@ const handleDestinationClear = () => {
 
 const getUserLocation = () => {
   if (!navigator.geolocation) {
-    showToast("Geolocation is not supported by your browser", "error");
+    showToast(t("toast_geolocationNotSupported"), "error");
     return;
   }
 
@@ -214,20 +223,17 @@ const getUserLocation = () => {
 
         const address = response.data;
         addressStore.setOrigin(address);
-        showToast("Location found!", "success");
+        showToast(t("toast_locationFound"), "success");
       } catch (error) {
         console.error("Error reverse geocoding:", error);
-        showToast("Failed to get address from location", "error");
+        showToast(t("toast_reverseError"), "error");
       } finally {
         isGettingLocation.value = false;
       }
     },
     (error) => {
       console.error("Geolocation error:", error);
-      showToast(
-        "Failed to get your location. Please enter it manually.",
-        "error"
-      );
+      showToast(t("toast_locationError"), "error");
       isGettingLocation.value = false;
     },
     {
@@ -243,17 +249,19 @@ const findRide = async () => {
 
   isSearching.value = true;
   try {
-    showToast("Searching for available rides...", "info");
+    showToast(t("toast_searchingRides"), "info");
     const rides = await mapStore.fetchNearbyRides(
       origin.value.latitude,
       origin.value.longitude,
       10
     );
     if (rides.length === 0) {
-      showToast("No rides found nearby", "warning");
+      showToast(t("toast_noRides"), "warning");
     } else {
       showToast(
-        `Found ${rides.length} available ride${rides.length > 1 ? "s" : ""}`,
+        `${t("toast_foundRides", { count: rides.length })}${
+          rides.length > 1 ? "s" : ""
+        }`,
         "success"
       );
       router.push("/ride-results");
