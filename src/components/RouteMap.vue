@@ -27,19 +27,9 @@
         </l-polygon>
 
         <!-- Waypoint markers -->
-        <l-marker
-          v-for="(waypoint, index) in waypoints"
-          :key="index"
-          :lat-lng="[waypoint.lat, waypoint.lon]"
-        >
-          <l-icon
-            :icon-url="getMarkerIcon(getMarkerColor(index))"
-            :icon-size="[25, 41]"
-            :icon-anchor="[12, 41]"
-          />
-          <l-popup
-            >{{ t("routePlannerPage.waypoint") }} {{ index + 1 }}</l-popup
-          >
+        <l-marker v-for="(waypoint, index) in waypoints" :key="index" :lat-lng="[waypoint.lat, waypoint.lon]"
+            :icon="getMarkerIcon(getMarkerColor(index), index)">
+            <l-popup>{{ t("routePlannerPage.waypoint") }} {{ index + 1 }}</l-popup>
         </l-marker>
 
         <!-- Route polyline segments with different colors -->
@@ -60,22 +50,13 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, nextTick, watch } from "vue";
-import {
-  LMap,
-  LTileLayer,
-  LMarker,
-  LPolyline,
-  LPopup,
-  LIcon,
-  LRectangle,
-  LPolygon,
-} from "@vue-leaflet/vue-leaflet";
-import "leaflet/dist/leaflet.css";
-import L from "leaflet";
-import { useMapStore } from "../stores/mapStore";
-import InfoPanel from "./InfoPanel.vue";
-import { routingAreaPolygon } from "../data/routingAreaPolygon.js";
+import { ref, computed, onMounted, nextTick, watch } from 'vue'
+import { LMap, LTileLayer, LMarker, LPolyline, LPopup, LPolygon } from '@vue-leaflet/vue-leaflet'
+import 'leaflet/dist/leaflet.css'
+import L from 'leaflet'
+import { useMapStore } from '../stores/mapStore'
+import InfoPanel from './InfoPanel.vue'
+import { routingAreaPolygon } from '../data/routingAreaPolygon.js'
 import { useI18n } from "vue-i18n";
 
 const { t } = useI18n();
@@ -118,35 +99,74 @@ watch(routeData, (newRouteData) => {
 const routeSegments = computed(() => {
   if (!routeData.value || !routeData.value.segments) return [];
 
-  const colors = ["#00ff00", "#ff6600"]; // Green for segment 1->2, Orange for segment 2->3
+  // Modern colors for route segments
+  const colors = ['#3B82F6', '#10B981'] // Blue for segment 1->2, Emerald for segment 2->3
 
   return routeData.value.segments.map((segmentCoords, index) => ({
-    coordinates: segmentCoords,
-    color: colors[index] || "#0000ff",
-  }));
-});
+      coordinates: segmentCoords,
+      color: colors[index] || '#6366F1' // Fallback to Indigo
+  }))
+})
+
+const props = defineProps({
+    interactive: {
+        type: Boolean,
+        default: true
+    }
+})
 
 const onMapClick = (event) => {
-  const { lat, lng } = event.latlng;
-  mapStore.addWaypoint({ lat, lon: lng });
-};
+    if (!props.interactive) return
+    const { lat, lng } = event.latlng
+    mapStore.addWaypoint({ lat, lon: lng })
+}
 
 // Helper to get marker color based on index
 const getMarkerColor = (index) => {
-  const mapStore = useMapStore();
-  if (mapStore.selectedRide) {
-    // Ride start (green), User pickup (blue), User destination (orange), Ride end (red)
-    const colors = ["green", "blue", "orange", "red"];
-    return colors[index] || "grey";
-  }
-  const colors = ["green", "orange", "red"];
-  return colors[index] || "blue";
-};
+    const mapStore = useMapStore()
+    if (mapStore.selectedRide) {
+        // Ride start (green), User pickup (blue), User destination (orange), Ride end (red)
+        const colors = ['#10B981', '#3B82F6', '#F59E0B', '#EF4444']
+        return colors[index] || '#6B7280'
+    }
+    const colors = ['#10B981', '#F59E0B', '#EF4444']
+    return colors[index] || '#3B82F6'
+}
 
-// Helper to get marker icon (default Leaflet markers)
-const getMarkerIcon = (color) => {
-  return `https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-${color}.png`;
-};
+// Helper to get marker icon (Custom DivIcon)
+const getMarkerIcon = (color, index) => {
+    // Create a modern circular marker with a letter or number
+    const labels = ['A', 'B', 'C', 'D']
+    const label = labels[index] || (index + 1).toString()
+
+    const html = `
+        <div style="
+            background-color: ${color};
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: 3px solid white;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-family: sans-serif;
+            font-size: 14px;
+        ">
+            ${label}
+        </div>
+    `
+
+    return L.divIcon({
+        className: 'custom-marker',
+        html: html,
+        iconSize: [32, 32],
+        iconAnchor: [16, 16], // Center the icon
+        popupAnchor: [0, -16]
+    })
+}
 
 // fitting the map bounds to show all waypoints and route
 const fitRouteBounds = () => {
