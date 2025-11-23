@@ -40,7 +40,36 @@
   "toast_error": "An error occurred",
   "404_title": "Oops! Lost in the Pool?",
   "404_message": "Sorry, the ride you're looking for doesn't exist. Let's get you back on track!",
-  "404_backHome": "Back to Home"
+  "404_backHome": "Back to Home",
+  "mapPageMessage": "This is the map page",
+  "loading": "Loading...",
+  "offer_startHeader": "Start Offering Rides",
+  "offer_startMessage": "Please create an account or log in to start offering rides to other users.",
+  "offer_loginButton": "Create Account / Log In",
+  "offer_verifyHeader": "Verify Your Driver's License",
+  "offer_verifyMessage": "To offer rides, please upload a photo of your driver's license for verification.",
+  "offer_demoText": "For demo purposes, you can use our sample license:",
+  "offer_useDemoButton": "Use Demo License",
+  "or": "OR",
+  "offer_uploadPlaceholder": "Click to upload your license image",
+  "offer_demoSelected": "Demo License Selected",
+  "offer_submitButton": "Submit for Verification",
+  "offer_verifyingHeader": "Verifying Your License...",
+  "offer_verifyingMessage": "Please wait while we verify your driver's license. This can take a few moments.",
+  "offer_verifiedDriver": "Verified Driver",
+  "offer_verifiedMessage": "Driving page coming soon",
+  "toast_demoLicenseSelected": "Demo license selected",
+  "toast_licenseVerified": "Driver's license verified successfully!",
+  "transaction_routeMap": "Route Map",
+  "transaction_confirmRide": "Confirm Your Ride",
+  "transaction_providerNote": "Complete your booking with PayPal or a credit card.",
+  "transaction_noRideSelected": "No ride selected",
+  "transaction_pickRideFirst": "Please pick a ride before continuing to the transaction screen.",
+  "transaction_backToResults": "Back to Ride Results",
+  "transaction_missingOriginDestination": "Origin or destination is missing. Re-select your ride if the map looks off.",
+  "back": "Back"
+
+
 
 
 }

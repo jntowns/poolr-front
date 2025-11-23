@@ -41,7 +41,37 @@
   "toast_error": "Une erreur s’est produite",
   "404_title": "Oups! Perdu dans la piscine?",
   "404_message": "Désolé, le trajet que vous cherchez n’existe pas. Revenons sur la bonne voie!",
-  "404_backHome": "Retour à l’accueil"
+  "404_backHome": "Retour à l’accueil",
+  "mapPageMessage": "Voici la page de la carte",
+  "loading": "Chargement...",
+  "offer_startHeader": "Commencez à offrir des trajets",
+  "offer_startMessage": "Veuillez créer un compte ou vous connecter pour commencer à offrir des trajets.",
+  "offer_loginButton": "Créer un compte / Se connecter",
+  "offer_verifyHeader": "Vérifiez votre permis de conduire",
+  "offer_verifyMessage": "Pour offrir des trajets, téléversez une photo de votre permis de conduire.",
+  "offer_demoText": "Pour la démonstration, vous pouvez utiliser notre permis d’exemple :",
+  "offer_useDemoButton": "Utiliser le permis démo",
+  "or": "OU",
+  "offer_uploadPlaceholder": "Cliquez pour téléverser votre permis",
+  "offer_demoSelected": "Permis démo sélectionné",
+  "offer_submitButton": "Soumettre pour vérification",
+  "offer_verifyingHeader": "Vérification du permis...",
+  "offer_verifyingMessage": "Veuillez patienter pendant que nous vérifions votre permis de conduire.",
+  "offer_verifiedDriver": "Conducteur vérifié",
+  "offer_verifiedMessage": "Page de conduite à venir bientôt",
+  "toast_demoLicenseSelected": "Permis de démonstration sélectionné",
+  "toast_licenseVerified": "Permis de conduire vérifié avec succès !",
+  "transaction_routeMap": "Carte de l’itinéraire",
+  "transaction_confirmRide": "Confirmez votre trajet",
+  "transaction_providerNote": "Complétez votre réservation avec PayPal ou une carte de crédit.",
+  "transaction_noRideSelected": "Aucun trajet sélectionné",
+  "transaction_pickRideFirst": "Veuillez choisir un trajet avant de continuer vers l’écran de transaction.",
+  "transaction_backToResults": "Retour aux résultats de trajets",
+  "transaction_missingOriginDestination": "Le point de départ ou la destination est manquant. Veuillez re-sélectionner votre trajet si la carte semble incorrecte.",
+  "back": "Retour"
+
+
+
 
 
 }
