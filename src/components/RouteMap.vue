@@ -1,52 +1,31 @@
 <template>
-  <div class="route-planner-container">
-    <div class="map-section">
-      <l-map
-        ref="map"
-        :zoom="zoom"
-        :center="center"
-        @click="onMapClick"
-        class="map"
-        :aria-label="t('routePlannerPage.mapAriaLabel')"
-      >
-        <l-tile-layer
-          :url="'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png'"
-          :attribution="attribution"
-          :subdomains="'abcd'"
-          :max-zoom="20"
-        />
+    <div class="route-planner-container">
+        <div class="map-section">
+            <l-map ref="map" :zoom="zoom" :center="center" @click="onMapClick" class="map"
+                :aria-label="t('routePlannerPage.mapAriaLabel')">
+                <l-tile-layer :url="'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png'"
+                    :attribution="attribution" :subdomains="'abcd'" :max-zoom="20" />
 
-        <!-- Polygon for available routing area -->
-        <l-polygon
-          :lat-lngs="routingAreaPolygon"
-          :color="'#FF0000FF'"
-          :weight="2"
-          :fill="false"
-        >
-          <l-popup>{{ t("routePlannerPage.availableRoutingArea") }}</l-popup>
-        </l-polygon>
+                <!-- Polygon for available routing area -->
+                <l-polygon :lat-lngs="routingAreaPolygon" :color="'#FF0000FF'" :weight="2" :fill="false">
+                    <l-popup>{{ t("routePlannerPage.availableRoutingArea") }}</l-popup>
+                </l-polygon>
 
-        <!-- Waypoint markers -->
-        <l-marker v-for="(waypoint, index) in waypoints" :key="index" :lat-lng="[waypoint.lat, waypoint.lon]"
-            :icon="getMarkerIcon(getMarkerColor(index), index)">
-            <l-popup>{{ t("routePlannerPage.waypoint") }} {{ index + 1 }}</l-popup>
-        </l-marker>
+                <!-- Waypoint markers -->
+                <l-marker v-for="(marker, index) in markers" :key="`marker-${index}-${marker.isHovered}`"
+                    :lat-lng="[marker.lat, marker.lon]" :icon="marker.icon">
+                    <l-popup>{{ t("routePlannerPage.waypoint") }} {{ index + 1 }}</l-popup>
+                </l-marker>
 
-        <!-- Route polyline segments with different colors -->
-        <template v-if="routeData && routeSegments.length > 0">
-          <l-polyline
-            v-for="(segment, index) in routeSegments"
-            :key="index"
-            :lat-lngs="segment.coordinates"
-            :color="segment.color"
-            :weight="5"
-            :opacity="0.7"
-          />
-        </template>
-      </l-map>
+                <!-- Route polyline segments with different colors -->
+                <template v-if="routeData && routeSegments.length > 0">
+                    <l-polyline v-for="(segment, index) in routeSegments" :key="index" :lat-lngs="segment.coordinates"
+                        :color="segment.color" :weight="segment.weight" :opacity="segment.opacity" />
+                </template>
+            </l-map>
+        </div>
+        <InfoPanel />
     </div>
-    <InfoPanel />
-  </div>
 </template>
 
 <script setup>
@@ -95,6 +74,22 @@ watch(routeData, (newRouteData) => {
   }
 });
 
+const hoveredElement = computed(() => mapStore.hoveredElement)
+
+const markers = computed(() => {
+    return waypoints.value.map((waypoint, index) => {
+        const color = getMarkerColor(index)
+        const icon = getMarkerIcon(color, index)
+        const isHovered = hoveredElement.value?.type === 'marker' && hoveredElement.value?.index === index
+        return {
+            lat: waypoint.lat,
+            lon: waypoint.lon,
+            icon: icon,
+            isHovered: isHovered
+        }
+    })
+})
+
 // Compute route segments with different colors
 const routeSegments = computed(() => {
   if (!routeData.value || !routeData.value.segments) return [];
@@ -102,10 +97,15 @@ const routeSegments = computed(() => {
   // Modern colors for route segments
   const colors = ['#3B82F6', '#10B981'] // Blue for segment 1->2, Emerald for segment 2->3
 
-  return routeData.value.segments.map((segmentCoords, index) => ({
-      coordinates: segmentCoords,
-      color: colors[index] || '#6366F1' // Fallback to Indigo
-  }))
+    return routeData.value.segments.map((segmentCoords, index) => {
+        const isHovered = hoveredElement.value?.type === 'segment' && hoveredElement.value?.index === index
+        return {
+            coordinates: segmentCoords,
+            color: colors[index] || '#6366F1', // Fallback to Indigo
+            weight: isHovered ? 8 : 5,
+            opacity: isHovered ? 1 : 0.7
+        }
+    })
 })
 
 const props = defineProps({
@@ -139,13 +139,18 @@ const getMarkerIcon = (color, index) => {
     const labels = ['A', 'B', 'C', 'D']
     const label = labels[index] || (index + 1).toString()
 
+    const isHovered = hoveredElement.value?.type === 'marker' && hoveredElement.value?.index === index
+    const size = isHovered ? 40 : 32
+    const fontSize = isHovered ? 16 : 14
+    const border = isHovered ? '4px solid white' : '3px solid white'
+
     const html = `
         <div style="
             background-color: ${color};
-            width: 32px;
-            height: 32px;
+            width: ${size}px;
+            height: ${size}px;
             border-radius: 50%;
-            border: 3px solid white;
+            border: ${border};
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
             display: flex;
             align-items: center;
@@ -153,7 +158,8 @@ const getMarkerIcon = (color, index) => {
             color: white;
             font-weight: bold;
             font-family: sans-serif;
-            font-size: 14px;
+            font-size: ${fontSize}px;
+            transition: all 0.2s ease;
         ">
             ${label}
         </div>
@@ -162,9 +168,9 @@ const getMarkerIcon = (color, index) => {
     return L.divIcon({
         className: 'custom-marker',
         html: html,
-        iconSize: [32, 32],
-        iconAnchor: [16, 16], // Center the icon
-        popupAnchor: [0, -16]
+        iconSize: [size, size],
+        iconAnchor: [size / 2, size / 2], // Center the icon
+        popupAnchor: [0, -size / 2]
     })
 }
 

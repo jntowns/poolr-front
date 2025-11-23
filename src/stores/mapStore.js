@@ -7,9 +7,13 @@ export const useMapStore = defineStore('map', {
         waypoints: [],
         routeData: null,
         nearbyRides: [],
-        selectedRide: null
+        selectedRide: null,
+        hoveredElement: null
     }),
     actions: {
+        setHoveredElement(element) {
+            this.hoveredElement = element
+        },
         addWaypoint(waypoint) {
             this.waypoints.push(waypoint)
             if (this.waypoints.length >= 2) {
