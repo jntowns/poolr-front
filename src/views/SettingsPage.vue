@@ -135,4 +135,7 @@ const changeLanguage = () => {
 #language {
   border-left: 4px solid #8b5cf6;
 }
+#report {
+  border-left: 4px solid #5f6b6d;
+}
 </style>
