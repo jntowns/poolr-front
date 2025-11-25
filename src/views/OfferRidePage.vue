@@ -50,13 +50,13 @@
                     <h3 class="text-xl font-medium mb-4 text-gray-700">Create New Ride</h3>
                     <div class="space-y-4" :key="refreshKey">
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Pickup Location</label>
-                            <AddressSearchBar placeholder="Enter pickup location" @select="handleStartSelect" />
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Starting Location</label>
+                            <AddressSearchBar placeholder="Where are you driving from?" @select="handleStartSelect" />
                         </div>
 
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Dropoff Location</label>
-                            <AddressSearchBar placeholder="Enter dropoff location" @select="handleEndSelect"
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Destination</label>
+                            <AddressSearchBar placeholder="Where are you heading?" @select="handleEndSelect"
                                 :userLocation="startLocationForSearch" />
                         </div>
 
@@ -92,39 +92,93 @@
                 <div>
                     <h3 class="text-xl font-medium mb-4 text-gray-700">Your Upcoming Rides</h3>
                     <div v-if="myRides.length === 0" class="text-center text-gray-500 py-8 bg-gray-50 rounded-lg">
-                        No upcoming rides scheduled.
+                        <svg class="w-12 h-12 mx-auto mb-3 text-gray-300" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                        <p>No upcoming rides scheduled.</p>
+                        <p class="text-sm mt-1">Create a ride above to get started!</p>
                     </div>
                     <div v-else class="space-y-4">
                         <div v-for="ride in myRides" :key="ride.id"
-                            class="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
-                            <div class="flex justify-between items-start">
+                            class="bg-white border border-gray-200 rounded-xl p-5 hover:shadow-lg transition-all duration-200">
+
+                            <!-- Header with time countdown and status -->
+                            <div class="flex justify-between items-start mb-4">
                                 <div>
-                                    <div class="flex items-center text-gray-600 mb-2">
-                                        <span class="font-medium text-gray-900">{{ formatDate(ride.startTime) }}</span>
-                                        <span class="mx-2">•</span>
-                                        <span class="px-2 py-1 text-xs rounded-full" :class="{
-                                            'bg-green-100 text-green-800': ride.status === 'SCHEDULED',
-                                            'bg-blue-100 text-blue-800': ride.status === 'IN_PROGRESS',
-                                            'bg-gray-100 text-gray-800': ride.status === 'COMPLETED',
-                                            'bg-red-100 text-red-800': ride.status === 'CANCELLED'
+                                    <div class="flex items-center gap-3 mb-1">
+                                        <span class="text-lg font-semibold text-gray-900">{{ formatDate(ride.startTime)
+                                        }}</span>
+                                        <span class="px-2.5 py-1 text-xs font-medium rounded-full" :class="{
+                                            'bg-green-100 text-green-700': ride.status === 'SCHEDULED',
+                                            'bg-blue-100 text-blue-700': ride.status === 'IN_PROGRESS',
+                                            'bg-gray-100 text-gray-600': ride.status === 'COMPLETED',
+                                            'bg-red-100 text-red-700': ride.status === 'CANCELLED'
                                         }">
-                                            {{ ride.status }}
+                                            {{ formatStatus(ride.status) }}
                                         </span>
                                     </div>
-                                    <div class="space-y-2">
-                                        <div class="flex items-start">
-                                            <div class="mt-1 mr-2 w-2 h-2 rounded-full bg-green-500"></div>
-                                            <span class="text-gray-700">{{ ride.startAddress }}</span>
-                                        </div>
-                                        <div class="flex items-start">
-                                            <div class="mt-1 mr-2 w-2 h-2 rounded-full bg-red-500"></div>
-                                            <span class="text-gray-700">{{ ride.endAddress }}</span>
-                                        </div>
+                                    <!-- Time until departure -->
+                                    <div class="flex items-center text-sm" :class="getTimeUntilClass(ride.startTime)">
+                                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                        {{ getTimeUntil(ride.startTime) }}
                                     </div>
                                 </div>
+
+                                <!-- Seats info -->
                                 <div class="text-right">
-                                    <!-- TODO: add cancel button or other things here -->
+                                    <div class="flex items-center justify-end text-gray-600">
+                                        <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+                                        </svg>
+                                        <span class="text-sm font-medium">{{ formatCount(identityStore.vehicleSeats - 1,
+                                            'seat') }}
+                                            available</span>
+                                    </div>
                                 </div>
+                            </div>
+
+                            <!-- Route visualization -->
+                            <div class="relative pl-6 space-y-3">
+                                <!-- Vertical line connecting dots -->
+                                <div
+                                    class="absolute left-[7px] top-2 bottom-2 w-0.5 bg-gradient-to-b from-green-400 to-red-400">
+                                </div>
+
+                                <!-- Start location -->
+                                <div class="flex items-start">
+                                    <div
+                                        class="absolute left-0 mt-1.5 w-4 h-4 rounded-full bg-green-500 border-2 border-white shadow">
+                                    </div>
+                                    <div class="ml-4">
+                                        <span
+                                            class="text-xs font-medium text-gray-500 uppercase tracking-wide">From</span>
+                                        <p class="text-gray-800 font-medium">{{ ride.startAddress }}</p>
+                                    </div>
+                                </div>
+
+                                <!-- End location -->
+                                <div class="flex items-start">
+                                    <div
+                                        class="absolute left-0 mt-1.5 w-4 h-4 rounded-full bg-red-500 border-2 border-white shadow">
+                                    </div>
+                                    <div class="ml-4">
+                                        <span
+                                            class="text-xs font-medium text-gray-500 uppercase tracking-wide">To</span>
+                                        <p class="text-gray-800 font-medium">{{ ride.endAddress }}</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Footer with ride ID -->
+                            <div class="mt-4 pt-3 border-t border-gray-100 flex justify-between items-center">
+                                <span class="text-xs text-gray-400">Ride #{{ ride.id }}</span>
+                                <!-- TODO: Add action buttons here -->
                             </div>
                         </div>
                     </div>
@@ -141,6 +195,7 @@ import { useRouter } from 'vue-router'
 import { useIdentityStore } from '../stores/identityStore'
 import AddressSearchBar from '../components/AddressSearchBar.vue'
 import apiClient from '../utils/apiClient'
+import { formatDate, formatStatus, getTimeUntil, getTimeUntilClass, formatCount } from '../utils/dateUtils'
 
 const router = useRouter()
 const identityStore = useIdentityStore()
@@ -250,16 +305,6 @@ const createRide = async () => {
 }
 
 const refreshKey = ref(0)
-
-const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleString('en-US', {
-        weekday: 'short',
-        month: 'short',
-        day: 'numeric',
-        hour: 'numeric',
-        minute: '2-digit'
-    })
-}
 
 const goToLogin = () => {
     router.push('/login')
