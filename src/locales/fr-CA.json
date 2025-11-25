@@ -174,7 +174,32 @@
   "mapAriaLabel": "Carte interactive pour la planification de l’itinéraire",
   "availableRoutingArea": "Zone de trajet disponible",
   "waypoint": "Point"
-}
+},
+  "transactions": {
+    "transaction_routeMap": "Carte de l’itinéraire",
+    "transaction_confirmRide": "Confirmez votre trajet",
+    "transaction_providerNote": "Complétez votre réservation avec PayPal ou une carte de crédit.",
+    "transaction_noRideSelected": "Aucun trajet sélectionné",
+    "transaction_pickRideFirst": "Veuillez sélectionner un trajet d’abord",
+    "transaction_backToResults": "Retour aux résultats"
+  },
+  "heroTitle1": "La façon moderne",
+  "heroTitle2": "de faire du covoiturage.",
+  "heroSubtitle": "Poolr vous connecte avec vos voisins pour un covoiturage simple et efficace. Économisez, réduisez la circulation et rencontrez des gens formidables.",
+  "findRide": "Trouver un trajet",
+  "offerRide": "Offrir un trajet",
+  "activeRidesLabel": "trajets actifs en ce moment",
+  "monthlySavings": "Économies mensuelles",
+  "fuelMaintenance": "Carburant et entretien",
+  "co2Saved": "CO₂ économisé",
+  "environmentalImpact": "Impact environnemental",
+  "newConnections": "Nouvelles connexions",
+  "communityGrowth": "Croissance communautaire",
+  "becomeDriverTitle1": "Devenez conducteur",
+  "becomeDriverTitle2": "et économisez.",
+  "driverDescription": "Transformez vos sièges vides en économies. Aidez votre communauté, réduisez la circulation et couvrez vos frais de déplacement grâce au covoiturage avec Poolr.",
+  "startDrivingToday": "Commencez à conduire dès aujourd’hui"
+
 
   
 

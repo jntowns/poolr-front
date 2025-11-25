@@ -173,11 +173,44 @@
   "mapAriaLabel": "Interactive map for route planning",
   "availableRoutingArea": "Available routing area",
   "waypoint": "Waypoint"
-}
+},
+"transactions": {
+  "routeMap": "Route Map",
+  "confirmRide": "Confirm Your Ride",
+  "providerNote": "Complete your booking with PayPal or a credit card.",
+  "noRideSelected": "No ride selected",
+  "pickRideFirst": "Please pick a ride first",
+  "backToResults": "Back to results",
+  "back": "Back"
+},
+ "heroTitle1": "The modern way",
+    "heroTitle2": "to carpool.",
+    "heroSubtitle": "Poolr connects you with neighbors for seamless ridesharing. Save costs, reduce traffic, and meet great people.",
+    
+    "findRide": "Find a Ride",
+    "offerRide": "Offer a Ride",
+
+    "activeRidesLabel": "active rides happening right now",
+
+    "monthlySavings": "Monthly Savings",
+    "fuelMaintenance": "Fuel & Maintenance",
+
+    "co2Saved": "CO2 Saved",
+    "environmentalImpact": "Environmental Impact",
+
+    "newConnections": "New Connections",
+    "communityGrowth": "Community Growth",
+
+    "becomeDriverTitle1": "Become a driver",
+    "becomeDriverTitle2": "and save.",
+
+    "driverDescription": "Turn your empty seats into savings. Help your community, reduce traffic, and cover your commute costs by driving with Poolr.",
+
+    "startDrivingToday": "Start Driving Today"
+  }
 
   
 
 
 
 
-}
