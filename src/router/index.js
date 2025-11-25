@@ -16,112 +16,112 @@ import TicketsPage from "../views/TicketsPage.vue";
 
 
 const router = createRouter({
-  history: createWebHistory(),
-  routes: [
-    {
-      path: "/",
-      name: "home",
-      component: HomePage,
-      meta: { title: "Home" },
-    },
-    {
-      path: "/about",
-      name: "about",
-      component: AboutPage,
-      meta: { title: "About" },
-    },
-    {
-      path: "/offer-ride",
-      name: "offerRide",
-      component: OfferRidePage,
-      meta: { title: "Offer Ride" },
-    },
-    {
-      path: "/find-ride",
-      name: "findRide",
-      component: FindRidePage,
-      meta: { title: "Find Ride" },
-    },
-    {
-      path: "/seeing-tickets",
-      name: "Tickets",
-      component: TicketsPage,
-      meta: { title: "Tickets Page" },
-    },
-    {
-      path: "/ride-results",
-      name: "RideResults",
-      component: RideDetailsPage,
-      meta: { title: "Ride Details" },
-    },
-    {
-      path: "/transaction",
-      name: "transaction",
-      component: TransactionPage,
-      meta: { title: "Confirm Ride" },
-    },
-    {
-      path: "/login",
-      name: "login",
-      component: LoginPage,
-      meta: { title: "Login" },
-    },
-    {
-      path: "/register",
-      name: "register",
-      component: RegisterPage,
-      meta: { title: "Register" },
-    },
-    {
-      path: "/map",
-      name: "map",
-      component: MapPage,
-      meta: { title: "Map" },
-    },
-    {
-      path: "/me",
-      name: "MyProfile",
-      component: MyProfilePage,
-      meta: { title: "My Profile" },
-    },
-    {
-      path: "/rideHistory",
-      name: "rideHistory",
-      component: RideHistoryPage,
-      meta: { title: "Ride History" },
-    },
-    {
-      path: "/settings",
-      name: "settings",
-      component: SettingsPage,
-      meta: { title: "Settings" },
-      children: [
+    history: createWebHistory(),
+    routes: [
         {
-          path: "profile",
-          name: "settingsProfile",
-          component: MyProfilePage,
-          meta: { title: "My Profile" },
+            path: "/",
+            name: "home",
+            component: HomePage,
+            meta: { title: "Home" },
         },
         {
-          path: "rideHistory",
-          name: "rideHistory",
-          component: RideHistoryPage,
-          meta: { title: "Ride History" },
+            path: "/about",
+            name: "about",
+            component: AboutPage,
+            meta: { title: "About" },
         },
-      ],
-    },
-    {
-      path: "/:pathMatch(.*)*",
-      name: "error",
-      component: ErrorPage,
-      meta: { title: "404" },
-    },
-  ],
+        {
+            path: "/offer-ride",
+            name: "offerRide",
+            component: OfferRidePage,
+            meta: { title: "Offer Ride" },
+        },
+        {
+            path: "/find-ride",
+            name: "findRide",
+            component: FindRidePage,
+            meta: { title: "Find Ride" },
+        },
+        {
+            path: "/tickets",
+            name: "tickets",
+            component: TicketsPage,
+            meta: { title: "Tickets Page" },
+        },
+        {
+            path: "/ride-results",
+            name: "RideResults",
+            component: RideDetailsPage,
+            meta: { title: "Ride Details" },
+        },
+        {
+            path: "/transaction",
+            name: "transaction",
+            component: TransactionPage,
+            meta: { title: "Confirm Ride" },
+        },
+        {
+            path: "/login",
+            name: "login",
+            component: LoginPage,
+            meta: { title: "Login" },
+        },
+        {
+            path: "/register",
+            name: "register",
+            component: RegisterPage,
+            meta: { title: "Register" },
+        },
+        {
+            path: "/map",
+            name: "map",
+            component: MapPage,
+            meta: { title: "Map" },
+        },
+        {
+            path: "/me",
+            name: "MyProfile",
+            component: MyProfilePage,
+            meta: { title: "My Profile" },
+        },
+        {
+            path: "/rideHistory",
+            name: "rideHistory",
+            component: RideHistoryPage,
+            meta: { title: "Ride History" },
+        },
+        {
+            path: "/settings",
+            name: "settings",
+            component: SettingsPage,
+            meta: { title: "Settings" },
+            children: [
+                {
+                    path: "profile",
+                    name: "settingsProfile",
+                    component: MyProfilePage,
+                    meta: { title: "My Profile" },
+                },
+                {
+                    path: "rideHistory",
+                    name: "rideHistory",
+                    component: RideHistoryPage,
+                    meta: { title: "Ride History" },
+                },
+            ],
+        },
+        {
+            path: "/:pathMatch(.*)*",
+            name: "error",
+            component: ErrorPage,
+            meta: { title: "404" },
+        },
+    ],
 });
 
 router.beforeEach((to, _from, next) => {
-  document.title = `Poolr - ${to.meta.title}`;
-  next();
+    document.title = `Poolr - ${to.meta.title}`;
+    next();
 });
 
 export default router;
