@@ -84,15 +84,16 @@
                 <h2 class="text-3xl font-semibold mb-4 text-green-600">✓ Verification Successful</h2>
 
                 <p class="mb-6 text-gray-600">Please enter your Vehicle model to continue.</p>
-                
+
                 <div class="mt-10 sm:mx-auto sm:w-full sm:max-w-sm bg-sky-900">
                     <form @submit.prevent="continueToDriverPage" class="space-y-6">
                         <div>
                             <label for="vehicleModel" class="block text-sm/6 font-medium text-gray-100">Vehicle
                                 Model</label>
                             <div class="mt-2">
-                                <input required v-model="localValue.vehicleModel" id="vehicleModel" type="text" name="vehicleModel"
-                                class="block w-full rounded-md bg-white/5 px-3 py-1.5 text-base text-white outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500 sm:text-sm/6"/>
+                                <input required v-model="localValue.vehicleModel" id="vehicleModel" type="text"
+                                    name="vehicleModel"
+                                    class="block w-full rounded-md bg-white/5 px-3 py-1.5 text-base text-white outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500 sm:text-sm/6" />
                             </div>
                         </div>
 
@@ -102,7 +103,7 @@
                         </div>
                     </form>
                 </div>
-                
+
             </div>
         </transition>
     </div>
@@ -115,6 +116,7 @@ import { storeToRefs } from 'pinia'
 import { useIdentityStore } from '../stores/identityStore'
 import { showToast } from '../utils/BaseToast'
 import demoLicenseImg from '../assets/images/license.jpg'
+import apiClient from '../utils/apiClient'
 
 const identityStore = useIdentityStore()
 const router = useRouter()
@@ -134,7 +136,7 @@ const isLoggedIn = computed(() => !!identityStore.id)
 
 onMounted(async () => {
     await identityStore.getIdentity()
-    if (identityStore.vehicleModel != null && identityStore.vehicleModel != "") {
+    if (identityStore.isVerified) {
         isVerified.value = true
     }
     isLoading.value = false
@@ -208,14 +210,21 @@ const handleUpload = async () => {
     // random delay between 5-10 seconds
     const delay = Math.floor(Math.random() * 5000) + 5000
 
-    setTimeout(() => {
-        localStorage.setItem('verified', 'true')
-        isVerified.value = true
-        isVerifying.value = false
-        showToast('Driver\'s license verified successfully!', 'success')
+    setTimeout(async () => {
+        try {
+            await apiClient.post('/api/user/verify')
+            await identityStore.getIdentity()
 
-        if (previewUrl.value && !isDemoLicense.value) {
-            URL.revokeObjectURL(previewUrl.value)
+            isVerified.value = true
+            isVerifying.value = false
+            showToast('Driver\'s license verified successfully!', 'success')
+
+            if (previewUrl.value && !isDemoLicense.value) {
+                URL.revokeObjectURL(previewUrl.value)
+            }
+        } catch (error) {
+            isVerifying.value = false
+            showToast('Verification failed', 'error')
         }
     }, delay)
 }
