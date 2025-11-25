@@ -16,72 +16,174 @@
                 </button>
             </div>
 
-            <!-- logged in but not verified -->
-            <div v-else-if="!isVerified && !isVerifying" class="bg-white rounded-lg p-8 shadow-md text-center">
-                <h2 class="text-2xl font-semibold mb-4 text-gray-800">Verify Your Driver's License</h2>
-                <p class="mb-6 text-gray-600">To offer rides, please upload a photo of your driver's license for
-                    verification.</p>
+            <!-- not verified -->
+            <div v-else-if="!isVerified" class="bg-white rounded-lg p-8 shadow-md text-center">
+                <!-- Maybe this should just redirect but this seems okay for now -->
+                <h2 class="text-2xl font-semibold mb-4 text-gray-800">Start Offering Rides</h2>
+                <p class="mb-6 text-gray-600">Looking to help others in their commute?</p>
+                <p class="mb-6 text-gray-600">To register as a driver with our service, you will need to provide a valid
+                    driver's license for the area you will be driving in. Any images you upload will be removed from our
+                    servers after verification is complete.
+                </p>
+                <button @click="goToVerify"
+                    class="bg-blue-600 text-white px-6 py-3 rounded hover:bg-blue-700 transition-colors">
+                    Submit your License
+                </button>
+            </div>
 
-                <form @submit.prevent="handleUpload">
-                    <div class="mb-4 p-4 bg-gray-50 rounded-lg">
-                        <p class="mb-2 text-sm text-gray-600">For demo purposes, you can use our sample license:</p>
-                        <button type="button" @click="useDemoLicense"
-                            class="bg-gray-600 text-white px-4 py-2 rounded text-sm hover:bg-gray-700 transition-colors">
-                            Use Demo License
+            <!-- Verified but no vehicle -->
+            <div v-else-if="isVerified && !isVehicleSetup" class="bg-white rounded-lg p-8 shadow-md text-center">
+                <h2 class="text-2xl font-semibold mb-4 text-gray-800">Complete Vehicle Setup</h2>
+                <p class="mb-6 text-gray-600">You are verified, but you need to set up your vehicle details before
+                    offering rides.</p>
+                <button @click="goToVerify"
+                    class="bg-blue-600 text-white px-6 py-3 rounded hover:bg-blue-700 transition-colors">
+                    Setup Vehicle
+                </button>
+            </div>
+
+            <!-- Verified and vehicle setup -->
+            <div v-else-if="isVerified && isVehicleSetup" class="bg-white rounded-lg p-8 shadow-md">
+                <h2 class="text-3xl font-semibold mb-6 text-gray-800 text-center">Offer a Ride</h2>
+
+                <div class="mb-8 bg-gray-50 p-6 rounded-lg border border-gray-200">
+                    <h3 class="text-xl font-medium mb-4 text-gray-700">Create New Ride</h3>
+                    <div class="space-y-4" :key="refreshKey">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Starting Location</label>
+                            <AddressSearchBar placeholder="Where are you driving from?" @select="handleStartSelect" />
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Destination</label>
+                            <AddressSearchBar placeholder="Where are you heading?" @select="handleEndSelect"
+                                :userLocation="startLocationForSearch" />
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Departure Time</label>
+                                <input v-model="departureTime" type="datetime-local"
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Fare ($)</label>
+                                <input v-model="fare" type="number" min="0" step="0.50"
+                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                            </div>
+                        </div>
+
+                        <button @click="createRide" :disabled="!isValidRide || isCreating"
+                            class="w-full bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed flex justify-center items-center">
+                            <span v-if="isCreating" class="animate-spin mr-2">
+                                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                                        stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor"
+                                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                                    </path>
+                                </svg>
+                            </span>
+                            {{ isCreating ? 'Creating Ride...' : 'Create Ride' }}
                         </button>
                     </div>
-
-                    <div class="relative my-6 text-gray-500 font-semibold">
-                        <div class="absolute inset-0 flex items-center">
-                            <div class="w-full border-t border-gray-300"></div>
-                        </div>
-                        <div class="relative flex justify-center">
-                            <span class="bg-white px-4">OR</span>
-                        </div>
-                    </div>
-
-                    <div class="mb-6">
-                        <input type="file" id="license-upload" ref="fileInput"
-                            accept="image/png, image/jpeg, image/jpg, image/gif, image/webp" @change="handleFileSelect"
-                            class="hidden" />
-                        <label for="license-upload"
-                            class="block p-8 border-2 border-dashed border-blue-600 rounded-lg cursor-pointer text-blue-600 hover:bg-blue-50 transition-colors">
-                            <span v-if="!selectedFile && !previewUrl">Click to upload your license image</span>
-                            <span v-else-if="selectedFile && !isDemoLicense">{{ selectedFile.name }}</span>
-                            <span v-else>Demo License Selected</span>
-                        </label>
-                    </div>
-
-                    <div v-if="previewUrl" class="my-6 p-4 bg-gray-50 rounded-lg">
-                        <img :src="previewUrl" alt="License preview"
-                            class="max-w-full max-h-72 mx-auto rounded shadow-sm" />
-                    </div>
-
-                    <button type="submit" :disabled="!selectedFile && !previewUrl"
-                        class="bg-blue-600 text-white px-6 py-3 rounded hover:bg-blue-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed">
-                        Submit for Verification
-                    </button>
-                </form>
-            </div>
-
-            <!-- Verifying -->
-            <div v-else-if="isVerifying" class="bg-white rounded-lg p-12 shadow-md text-center">
-                <div v-if="previewUrl" class="mb-6 p-4 bg-gray-50 rounded-lg scanning-container">
-                    <img :src="previewUrl" alt="License preview"
-                        class="max-w-full max-h-72 mx-auto rounded shadow-sm" />
                 </div>
-                <div
-                    class="w-12 h-12 mx-auto mb-4 border-4 border-gray-200 border-t-blue-600 rounded-full animate-spin">
-                </div>
-                <h2 class="text-2xl font-semibold mb-4 text-gray-800">Verifying Your License...</h2>
-                <p class="text-gray-600">Please wait while we verify your driver's license. This can take a few moments.
-                </p>
-            </div>
 
-            <!-- Verified -->
-            <div v-else-if="isVerified" class="bg-white rounded-lg p-8 shadow-md text-center">
-                <h2 class="text-3xl font-semibold mb-4 text-green-600">✓ Verified Driver</h2>
-                <p class="text-gray-600">Driving page coming soon</p>
+                <div>
+                    <h3 class="text-xl font-medium mb-4 text-gray-700">Your Upcoming Rides</h3>
+                    <div v-if="myRides.length === 0" class="text-center text-gray-500 py-8 bg-gray-50 rounded-lg">
+                        <svg class="w-12 h-12 mx-auto mb-3 text-gray-300" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                        <p>No upcoming rides scheduled.</p>
+                        <p class="text-sm mt-1">Create a ride above to get started!</p>
+                    </div>
+                    <div v-else class="space-y-4">
+                        <div v-for="ride in myRides" :key="ride.id"
+                            class="bg-white border border-gray-200 rounded-xl p-5 hover:shadow-lg transition-all duration-200">
+
+                            <!-- Header with time countdown and status -->
+                            <div class="flex justify-between items-start mb-4">
+                                <div>
+                                    <div class="flex items-center gap-3 mb-1">
+                                        <span class="text-lg font-semibold text-gray-900">{{ formatDate(ride.startTime)
+                                        }}</span>
+                                        <span class="px-2.5 py-1 text-xs font-medium rounded-full" :class="{
+                                            'bg-green-100 text-green-700': ride.status === 'SCHEDULED',
+                                            'bg-blue-100 text-blue-700': ride.status === 'IN_PROGRESS',
+                                            'bg-gray-100 text-gray-600': ride.status === 'COMPLETED',
+                                            'bg-red-100 text-red-700': ride.status === 'CANCELLED'
+                                        }">
+                                            {{ formatStatus(ride.status) }}
+                                        </span>
+                                    </div>
+                                    <!-- Time until departure -->
+                                    <div class="flex items-center text-sm" :class="getTimeUntilClass(ride.startTime)">
+                                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                        {{ getTimeUntil(ride.startTime) }}
+                                    </div>
+                                </div>
+
+                                <!-- Seats info -->
+                                <div class="text-right">
+                                    <div class="flex items-center justify-end text-gray-600">
+                                        <svg class="w-5 h-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+                                        </svg>
+                                        <span class="text-sm font-medium">{{ formatCount(identityStore.vehicleSeats - 1,
+                                            'seat') }}
+                                            available</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Route visualization -->
+                            <div class="relative pl-6 space-y-3">
+                                <!-- Vertical line connecting dots -->
+                                <div
+                                    class="absolute left-[7px] top-2 bottom-2 w-0.5 bg-gradient-to-b from-green-400 to-red-400">
+                                </div>
+
+                                <!-- Start location -->
+                                <div class="flex items-start">
+                                    <div
+                                        class="absolute left-0 mt-1.5 w-4 h-4 rounded-full bg-green-500 border-2 border-white shadow">
+                                    </div>
+                                    <div class="ml-4">
+                                        <span
+                                            class="text-xs font-medium text-gray-500 uppercase tracking-wide">From</span>
+                                        <p class="text-gray-800 font-medium">{{ ride.startAddress }}</p>
+                                    </div>
+                                </div>
+
+                                <!-- End location -->
+                                <div class="flex items-start">
+                                    <div
+                                        class="absolute left-0 mt-1.5 w-4 h-4 rounded-full bg-red-500 border-2 border-white shadow">
+                                    </div>
+                                    <div class="ml-4">
+                                        <span
+                                            class="text-xs font-medium text-gray-500 uppercase tracking-wide">To</span>
+                                        <p class="text-gray-800 font-medium">{{ ride.endAddress }}</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Footer with ride ID -->
+                            <div class="mt-4 pt-3 border-t border-gray-100 flex justify-between items-center">
+                                <span class="text-xs text-gray-400">Ride #{{ ride.id }}</span>
+                                <!-- TODO: Add action buttons here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </transition>
     </div>
@@ -91,73 +193,127 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useIdentityStore } from '../stores/identityStore'
-import { showToast } from '../utils/BaseToast'
-import demoLicenseImg from '../assets/images/license.jpg'
+import AddressSearchBar from '../components/AddressSearchBar.vue'
+import apiClient from '../utils/apiClient'
+import { formatDate, formatStatus, getTimeUntil, getTimeUntilClass, formatCount } from '../utils/dateUtils'
 
 const router = useRouter()
 const identityStore = useIdentityStore()
 
-const selectedFile = ref(null)
-const isVerifying = ref(false)
 const isVerified = ref(false)
-const previewUrl = ref(null)
-const isDemoLicense = ref(false)
+const isVehicleSetup = ref(false)
 const isLoading = ref(true)
+const isCreating = ref(false)
+
+const myRides = ref([])
+const startLocation = ref(null)
+const endLocation = ref(null)
+const departureTime = ref('')
+const fare = ref(5.00)
 
 const isLoggedIn = computed(() => !!identityStore.id)
+const isValidRide = computed(() => startLocation.value && endLocation.value && departureTime.value && fare.value > 0)
+const startLocationForSearch = computed(() => {
+    if (startLocation.value) {
+        return {
+            latitude: startLocation.value.latitude,
+            longitude: startLocation.value.longitude
+        }
+    }
+    return null
+})
 
 onMounted(async () => {
     await identityStore.getIdentity()
-    const verified = localStorage.getItem('verified')
-    if (verified === 'true') {
+    if (identityStore.isVerified) {
         isVerified.value = true
+    }
+    if (identityStore.vehicleModel && identityStore.vehicleMake && identityStore.vehicleYear && identityStore.vehicleSeats && identityStore.vehicleColor) {
+        isVehicleSetup.value = true
+        await fetchMyRides()
     }
     isLoading.value = false
 })
+
+const fetchMyRides = async () => {
+    try {
+        const response = await apiClient.get('/api/rides/driver')
+        myRides.value = response.data.sort((a, b) => new Date(a.startTime) - new Date(b.startTime))
+    } catch (error) {
+        console.error('Failed to fetch rides', error)
+    }
+}
+
+const handleStartSelect = (address) => {
+    startLocation.value = address
+}
+
+const handleEndSelect = (address) => {
+    endLocation.value = address
+}
+
+const formatAddress = (location) => {
+    // For POIs: use name + street + city, for addresses: use street + city or description
+    if (location.type === 'poi') {
+        const parts = [location.name]
+        if (location.street) parts.push(location.street)
+        if (location.city) parts.push(location.city)
+        return parts.join(', ')
+    } else {
+        // For addresses, street + city or fall back to name
+        const parts = []
+        if (location.street) parts.push(location.street)
+        if (location.city) parts.push(location.city)
+        return parts.length > 0 ? parts.join(', ') : location.name
+    }
+}
+
+const createRide = async () => {
+    if (!isValidRide.value) return
+
+    isCreating.value = true
+    try {
+        const rideData = {
+            driverId: identityStore.id,
+            startLatitude: startLocation.value.latitude,
+            startLongitude: startLocation.value.longitude,
+            startAddress: formatAddress(startLocation.value),
+            endLatitude: endLocation.value.latitude,
+            endLongitude: endLocation.value.longitude,
+            endAddress: formatAddress(endLocation.value),
+            poiCategory: 'commute',
+            fare: parseFloat(fare.value),
+            startTime: new Date(departureTime.value).toISOString()
+        }
+
+        await apiClient.post('/api/rides', rideData)
+        await fetchMyRides()
+
+        startLocation.value = null
+        endLocation.value = null
+        departureTime.value = ''
+
+        // forcing a refresh of the form
+        refreshKey.value++
+
+    } catch (error) {
+        console.error('Failed to create ride', error)
+        alert('Failed to create ride. Please try again.')
+    } finally {
+        isCreating.value = false
+    }
+}
+
+const refreshKey = ref(0)
 
 const goToLogin = () => {
     router.push('/login')
 }
 
-const handleFileSelect = (event) => {
-    const file = event.target.files[0]
-    if (file) {
-        selectedFile.value = file
-        isDemoLicense.value = false
-
-        if (previewUrl.value) {
-            URL.revokeObjectURL(previewUrl.value)
-        }
-        previewUrl.value = URL.createObjectURL(file)
-    }
+const goToVerify = () => {
+    router.push('/driver-setup')
 }
 
-const useDemoLicense = () => {
-    isDemoLicense.value = true
-    selectedFile.value = { name: 'demo-license.png' }
-    previewUrl.value = demoLicenseImg
-    showToast('Demo license selected', 'info')
-}
-
-const handleUpload = async () => {
-    if (!selectedFile.value && !previewUrl.value) return
-
-    isVerifying.value = true
-
-    // random delay between 5-10 seconds
-    const delay = Math.floor(Math.random() * 5000) + 5000
-
-    setTimeout(() => {
-        localStorage.setItem('verified', 'true')
-        isVerified.value = true
-        isVerifying.value = false
-        showToast('Driver\'s license verified successfully!', 'success')
-
-        if (previewUrl.value && !isDemoLicense.value) {
-            URL.revokeObjectURL(previewUrl.value)
-        }
-    }, delay)
-}
 </script>
 
 <style scoped>

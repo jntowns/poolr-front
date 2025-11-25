@@ -3,7 +3,7 @@ import { loadPayPalSdk } from '../utils/paypal'
 import { showToast } from '../utils/BaseToast'
 import apiClient from '../utils/apiClient'
 import router from "../router/index.js";
-import { useMapStore } from '../stores/mapstore'
+import { useMapStore } from '../stores/mapStore.js'
 
 
 export function usePayPal() {

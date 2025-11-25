@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from "vue-router";
 import HomePage from "../views/HomePage.vue";
 import OfferRidePage from "../views/OfferRidePage.vue";
+import DriverSetupPage from '../views/DriverSetupPage.vue'
 import FindRidePage from "../views/FindRidePage.vue";
 import AboutPage from "../views/AboutPage.vue";
 import LoginPage from "../views/LoginPage.vue";
@@ -103,6 +104,12 @@ const router = createRouter({
                     meta: { title: "My Profile" },
                 },
                 {
+                    path: '/driver-setup',
+                    name: 'DriverSetup',
+                    component: DriverSetupPage,
+                    meta: { title: 'Driver Setup' }
+                },
+                {
                     path: "rideHistory",
                     name: "rideHistory",
                     component: RideHistoryPage,
@@ -120,6 +127,8 @@ const router = createRouter({
 });
 
 router.beforeEach((to, _from, next) => {
+    document.title = `Poolr - ${to.meta.title}`;
+    next();
     document.title = `Poolr - ${to.meta.title}`;
     next();
 });

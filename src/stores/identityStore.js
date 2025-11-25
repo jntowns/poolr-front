@@ -9,7 +9,12 @@ export const useIdentityStore = defineStore('identity', {
         username: null,
         email: null,
         phoneNumber: null,
-        vehicleModel: null
+        vehicleModel: null,
+        vehicleMake: null,
+        vehicleYear: null,
+        vehicleSeats: null,
+        vehicleColor: null,
+        isVerified: false
     }),
     actions: {
         async getIdentity() {
@@ -21,6 +26,11 @@ export const useIdentityStore = defineStore('identity', {
                 this.email = response.data.email;
                 this.phoneNumber = response.data.phoneNumber;
                 this.vehicleModel = response.data.vehicleModel;
+                this.vehicleMake = response.data.vehicleMake;
+                this.vehicleYear = response.data.vehicleYear;
+                this.vehicleSeats = response.data.vehicleSeats;
+                this.vehicleColor = response.data.vehicleColor;
+                this.isVerified = response.data.isVerified;
             } catch (error) {
                 console.error('Error fetching user information:', error)
                 // showToast('Failed to fetch user information', 'error');
@@ -33,6 +43,11 @@ export const useIdentityStore = defineStore('identity', {
             this.email = user.email;
             this.phoneNumber = user.phoneNumber;
             this.vehicleModel = user.vehicleModel;
+            this.vehicleMake = user.vehicleMake;
+            this.vehicleYear = user.vehicleYear;
+            this.vehicleSeats = user.vehicleSeats;
+            this.vehicleColor = user.vehicleColor;
+            this.isVerified = user.isVerified;
         },
         async postIdentity(user) {
             try {
@@ -43,6 +58,11 @@ export const useIdentityStore = defineStore('identity', {
                 this.email = response.data.email;
                 this.phoneNumber = response.data.phoneNumber;
                 this.vehicleModel = response.data.vehicleModel;
+                this.vehicleMake = response.data.vehicleMake;
+                this.vehicleYear = response.data.vehicleYear;
+                this.vehicleSeats = response.data.vehicleSeats;
+                this.vehicleColor = response.data.vehicleColor;
+                this.isVerified = response.data.isVerified;
                 showToast('User information updated successfully', 'success');
                 return response;
             } catch (error) {

@@ -37,7 +37,7 @@
                         </p>
                         <p class="text-xs text-gray-500">
                             {{ (ride.rideDistanceKm || 0).toFixed(2) }} km trip • {{ (ride.detourDistance ||
-                            0).toFixed(2) }} km detour for driver • Subtotal:
+                                0).toFixed(2) }} km detour for driver • Subtotal:
                             {{ ride.pricing ? formatCurrency(ride.pricing.subtotalAmount) : '—' }}
                         </p>
                     </div>
@@ -57,6 +57,7 @@
 <script setup>
 import { computed } from 'vue'
 import { formatCurrency } from '../utils/pricing'
+import { getDepartureInfo } from '../utils/dateUtils'
 
 const props = defineProps({
     rides: {
@@ -73,23 +74,6 @@ const futureRides = computed(() => {
     const now = new Date()
     return props.rides.filter(ride => new Date(ride.startTime) > now)
 })
-
-const getDepartureInfo = (startTime) => {
-    const now = new Date()
-    const start = new Date(startTime)
-    const diffMs = start - now
-    if (diffMs <= 0) return 'Departed'
-    const diffHours = Math.floor(diffMs / (1000 * 60 * 60))
-    const diffMinutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60))
-    let timeString = ''
-    if (diffHours > 0) {
-        timeString = `Leaves in ${diffHours} hour${diffHours > 1 ? 's' : ''}`
-    } else {
-        timeString = `Leaves in ${diffMinutes} minute${diffMinutes > 1 ? 's' : ''}`
-    }
-    const formattedTime = start.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: true })
-    return `${timeString} (${formattedTime})`
-}
 
 defineEmits(['select'])
 </script>
