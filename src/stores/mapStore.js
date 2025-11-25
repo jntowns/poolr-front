@@ -32,16 +32,13 @@ export const useMapStore = defineStore('map', {
                 showToast('Failed to calculate route. Please try again.', 'error')
             }
         },
-        async fetchNearbyRides(lat, lon, limit = 10) {
+        async fetchNearbyRides(lat, lon, lat2, lon2) {
             try {
-                const params = { lat, lon }
-                if (limit) {
-                    params.limit = limit
-                }
+                const params = { lat, lon, lat2, lon2 }
                 const response = await apiClient.get('/api/demo/rides/nearest', { params })
                 const ridesWithPricing = (response.data || []).map(ride => ({
                     ...ride,
-                    pricing: calculateRidePricing(ride.rideDistanceKm)
+                    pricing: calculateRidePricing(ride.rideDistanceKm, ride.detourDistance)
                 }))
                 // sorting by cheapest first
                 ridesWithPricing.sort((a, b) => a.pricing.grossAmount - b.pricing.grossAmount)
@@ -59,7 +56,7 @@ export const useMapStore = defineStore('map', {
                 ? ride
                 : {
                     ...ride,
-                    pricing: calculateRidePricing(ride?.rideDistanceKm)
+                    pricing: calculateRidePricing(ride?.rideDistanceKm, ride?.detourDistance)
                 }
             this.selectedRide = rideWithPricing
             const waypoints = [

@@ -174,7 +174,7 @@ const findRide = async () => {
     isSearching.value = true
     try {
         showToast('Searching for available rides...', 'info')
-        const rides = await mapStore.fetchNearbyRides(origin.value.latitude, origin.value.longitude, 10)
+        const rides = await mapStore.fetchNearbyRides(origin.value.latitude, origin.value.longitude, destination.value.latitude, destination.value.longitude)
         if (rides.length === 0) {
             showToast('No rides found nearby', 'warning')
         } else {

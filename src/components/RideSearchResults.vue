@@ -13,9 +13,6 @@
                     <div class="flex-1">
                         <div class="flex items-center gap-2 mb-2">
                             <h3 class="font-semibold text-gray-900">{{ ride.driverName }}</h3>
-                            <span class="text-xs px-2 py-1 bg-blue-100 text-blue-800 rounded">
-                                {{ ride.distanceFromUserKm.toFixed(2) }} km away
-                            </span>
                         </div>
                         <p class="text-sm text-gray-600 mb-1">
                             {{ ride.vehicle }} • {{ ride.vehicleColor }}
@@ -39,7 +36,8 @@
                             {{ ride.pricing ? formatCurrency(ride.pricing.grossAmount) : '—' }}
                         </p>
                         <p class="text-xs text-gray-500">
-                            {{ ride.rideDistanceKm.toFixed(2) }} km • Subtotal:
+                            {{ (ride.rideDistanceKm || 0).toFixed(2) }} km trip • {{ (ride.detourDistance ||
+                            0).toFixed(2) }} km detour for driver • Subtotal:
                             {{ ride.pricing ? formatCurrency(ride.pricing.subtotalAmount) : '—' }}
                         </p>
                     </div>

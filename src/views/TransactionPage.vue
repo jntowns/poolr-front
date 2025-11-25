@@ -7,7 +7,7 @@
                     <RouteMap />
                 </div>
             </section>
-            
+
             <section class="transaction-card">
                 <header>
                     <h1>Confirm Your Ride</h1>
@@ -18,12 +18,8 @@
 
                 <RideSummary :ride="selectedRide" :route-data="routeData" />
                 <FareBreakdown v-if="pricing" :pricing="pricing" />
-                <PayPalPayment 
-                    :is-authenticated="isAuthenticated"
-                    :pricing="pricing"
-                    :ride-name="selectedRide.driverName"
-                    @login="goToLogin"
-                />
+                <PayPalPayment :is-authenticated="isAuthenticated" :pricing="pricing"
+                    :ride-name="selectedRide.driverName" @login="goToLogin" />
 
                 <div class="actions">
                     <button class="back-btn" @click="goBack">Back</button>
@@ -62,7 +58,7 @@ const routeData = computed(() => mapStore.routeData)
 const pricing = computed(() => {
     const currentRide = selectedRide.value
     if (!currentRide) return null
-    return currentRide.pricing ?? calculateRidePricing(currentRide.rideDistanceKm)
+    return currentRide.pricing ?? calculateRidePricing(currentRide.rideDistanceKm, currentRide.detourDistance)
 })
 
 const isAuthenticated = computed(() => !!identityStore.id)
@@ -81,19 +77,19 @@ const goToLogin = () => {
 
 onMounted(async () => {
     await identityStore.getIdentity()
-    
+
     if (!selectedRide.value) {
         router.replace('/find-ride')
         return
     }
-    
+
     if (!mapStore.selectedRide?.pricing) {
         mapStore.selectedRide = {
             ...mapStore.selectedRide,
-            pricing: calculateRidePricing(mapStore.selectedRide.rideDistanceKm)
+            pricing: calculateRidePricing(mapStore.selectedRide.rideDistanceKm, mapStore.selectedRide.detourDistance)
         }
     }
-    
+
     if (!addressStore.origin || !addressStore.destination) {
         showToast('Origin or destination is missing. Re-select your ride if the map looks off.', 'info')
     }
