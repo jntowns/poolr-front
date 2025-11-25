@@ -83,16 +83,56 @@
             <div v-else-if="isVerified" class="bg-white rounded-lg p-8 shadow-md text-center">
                 <h2 class="text-3xl font-semibold mb-4 text-green-600">✓ Verification Successful</h2>
 
-                <p class="mb-6 text-gray-600">Please enter your Vehicle model to continue.</p>
+                <p class="mb-6 text-gray-600">Please enter your Vehicle details to continue.</p>
 
-                <div class="mt-10 sm:mx-auto sm:w-full sm:max-w-sm bg-sky-900">
+                <div class="mt-10 sm:mx-auto sm:w-full sm:max-w-sm bg-sky-900 p-6 rounded-lg">
                     <form @submit.prevent="continueToDriverPage" class="space-y-6">
+                        <div>
+                            <label for="vehicleMake" class="block text-sm/6 font-medium text-gray-100">Vehicle
+                                Make</label>
+                            <div class="mt-2">
+                                <input required v-model="localValue.vehicleMake" id="vehicleMake" type="text"
+                                    name="vehicleMake" placeholder="e.g. Toyota"
+                                    class="block w-full rounded-md bg-white/5 px-3 py-1.5 text-base text-white outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500 sm:text-sm/6" />
+                            </div>
+                        </div>
+
                         <div>
                             <label for="vehicleModel" class="block text-sm/6 font-medium text-gray-100">Vehicle
                                 Model</label>
                             <div class="mt-2">
                                 <input required v-model="localValue.vehicleModel" id="vehicleModel" type="text"
-                                    name="vehicleModel"
+                                    name="vehicleModel" placeholder="e.g. Camry"
+                                    class="block w-full rounded-md bg-white/5 px-3 py-1.5 text-base text-white outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500 sm:text-sm/6" />
+                            </div>
+                        </div>
+
+                        <div>
+                            <label for="vehicleYear" class="block text-sm/6 font-medium text-gray-100">Vehicle
+                                Year</label>
+                            <div class="mt-2">
+                                <input required v-model="localValue.vehicleYear" id="vehicleYear" type="number"
+                                    name="vehicleYear" placeholder="e.g. 2022"
+                                    class="block w-full rounded-md bg-white/5 px-3 py-1.5 text-base text-white outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500 sm:text-sm/6" />
+                            </div>
+                        </div>
+
+                        <div>
+                            <label for="vehicleSeats" class="block text-sm/6 font-medium text-gray-100">Number of
+                                Seats</label>
+                            <div class="mt-2">
+                                <input required v-model="localValue.vehicleSeats" id="vehicleSeats" type="number"
+                                    name="vehicleSeats" placeholder="e.g. 4"
+                                    class="block w-full rounded-md bg-white/5 px-3 py-1.5 text-base text-white outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500 sm:text-sm/6" />
+                            </div>
+                        </div>
+
+                        <div>
+                            <label for="vehicleColor" class="block text-sm/6 font-medium text-gray-100">Vehicle
+                                Color</label>
+                            <div class="mt-2">
+                                <input required v-model="localValue.vehicleColor" id="vehicleColor" type="text"
+                                    name="vehicleColor" placeholder="e.g. Red"
                                     class="block w-full rounded-md bg-white/5 px-3 py-1.5 text-base text-white outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500 sm:text-sm/6" />
                             </div>
                         </div>
@@ -122,7 +162,11 @@ const identityStore = useIdentityStore()
 const router = useRouter()
 
 const localValue = reactive({
-    vehicleModel: ''
+    vehicleModel: '',
+    vehicleMake: '',
+    vehicleYear: '',
+    vehicleSeats: '',
+    vehicleColor: ''
 })
 
 const selectedFile = ref(null)
@@ -147,12 +191,12 @@ const goToLogin = () => {
 }
 
 const continueToDriverPage = async () => {
-    if (!localValue.vehicleModel) {
+    if (!localValue.vehicleModel || !localValue.vehicleMake || !localValue.vehicleYear || !localValue.vehicleSeats || !localValue.vehicleColor) {
         showToast('Please fill in all required fields.', 'error');
         return
     }
 
-    console.log(localValue.vehicleModel)
+    console.log(localValue)
 
     const updateData = ref({
         id: identityStore.id,
@@ -160,10 +204,18 @@ const continueToDriverPage = async () => {
         username: identityStore.username,
         email: identityStore.email,
         phoneNumber: identityStore.phoneNumber,
-        vehicleModel: localValue.vehicleModel
+        vehicleModel: localValue.vehicleModel,
+        vehicleMake: localValue.vehicleMake,
+        vehicleYear: localValue.vehicleYear,
+        vehicleSeats: localValue.vehicleSeats,
+        vehicleColor: localValue.vehicleColor
     })
 
     updateData.vehicleModel = localValue.vehicleModel
+    updateData.vehicleMake = localValue.vehicleMake
+    updateData.vehicleYear = localValue.vehicleYear
+    updateData.vehicleSeats = localValue.vehicleSeats
+    updateData.vehicleColor = localValue.vehicleColor
 
     console.log(updateData)
 

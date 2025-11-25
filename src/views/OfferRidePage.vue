@@ -31,8 +31,19 @@
                 </button>
             </div>
 
-            <!-- Verified -->
-            <div v-else-if="isVerified" class="bg-white rounded-lg p-8 shadow-md text-center">
+            <!-- Verified but no vehicle -->
+            <div v-else-if="isVerified && !isVehicleSetup" class="bg-white rounded-lg p-8 shadow-md text-center">
+                <h2 class="text-2xl font-semibold mb-4 text-gray-800">Complete Vehicle Setup</h2>
+                <p class="mb-6 text-gray-600">You are verified, but you need to set up your vehicle details before
+                    offering rides.</p>
+                <button @click="goToVerify"
+                    class="bg-blue-600 text-white px-6 py-3 rounded hover:bg-blue-700 transition-colors">
+                    Setup Vehicle
+                </button>
+            </div>
+
+            <!-- Verified and vehicle setup -->
+            <div v-else-if="isVerified && isVehicleSetup" class="bg-white rounded-lg p-8 shadow-md text-center">
                 <h2 class="text-3xl font-semibold mb-4 text-gray-600">Your Rides</h2>
 
             </div>
@@ -49,6 +60,7 @@ const router = useRouter()
 const identityStore = useIdentityStore()
 
 const isVerified = ref(false)
+const isVehicleSetup = ref(false)
 const isLoading = ref(true)
 
 const isLoggedIn = computed(() => !!identityStore.id)
@@ -58,6 +70,9 @@ onMounted(async () => {
     if (identityStore.isVerified) {
         isVerified.value = true
     }
+    if (identityStore.vehicleModel && identityStore.vehicleMake && identityStore.vehicleYear && identityStore.vehicleSeats && identityStore.vehicleColor) {
+        isVehicleSetup.value = true
+    }
     isLoading.value = false
 })
 
@@ -66,7 +81,7 @@ const goToLogin = () => {
 }
 
 const goToVerify = () => {
-    router.push('/verify-license')
+    router.push('/driver-setup')
 }
 
 </script>
