@@ -2,7 +2,8 @@ const currency = 'CAD'
 
 // Default pricing model parameters; tweak as backend policies evolve.
 const BASE_FARE = 3.5
-const PER_KM_RATE = 1.35
+const PER_KM_RATE = 0.5
+const PER_KM_DETOUR_RATE = 1.5
 const PLATFORM_FEE_RATE = 0.18
 const TAX_RATE = 0.13
 const TIP_RATE = 0
@@ -10,17 +11,22 @@ const EXTERNAL_FEE_FLAT = 0.35
 
 const roundToCents = (value) => Math.round(value * 100) / 100
 
-export function calculateRidePricing(distanceKm = 0, options = {}) {
+export function calculateRidePricing(distanceKm = 0, detourDistanceKm = 0, options = {}) {
     const baseFare = options.baseFare ?? BASE_FARE
     const perKmRate = options.perKmRate ?? PER_KM_RATE
+    const perKmDetourRate = options.perKmDetourRate ?? PER_KM_DETOUR_RATE
     const platformFeeRate = options.platformFeeRate ?? PLATFORM_FEE_RATE
     const taxRate = options.taxRate ?? TAX_RATE
     const tipRate = options.tipRate ?? TIP_RATE
     const externalFeeFlat = options.externalFeeFlat ?? EXTERNAL_FEE_FLAT
 
     const safeDistance = Number.isFinite(distanceKm) && distanceKm > 0 ? distanceKm : 0
+    const safeDetourDistance = Number.isFinite(detourDistanceKm) && detourDistanceKm > 0 ? detourDistanceKm : 0
 
-    const subtotal = roundToCents(baseFare + safeDistance * perKmRate)
+    const distanceCost = roundToCents(safeDistance * perKmRate)
+    const detourCost = roundToCents(safeDetourDistance * perKmDetourRate)
+    const subtotal = roundToCents(baseFare + distanceCost + detourCost)
+
     const platformFee = roundToCents(subtotal * platformFeeRate)
     const externalFee = roundToCents(externalFeeFlat)
     const tip = roundToCents(subtotal * tipRate)
@@ -30,6 +36,9 @@ export function calculateRidePricing(distanceKm = 0, options = {}) {
 
     return {
         currency,
+        baseFareAmount: baseFare,
+        distanceCostAmount: distanceCost,
+        detourCostAmount: detourCost,
         subtotalAmount: subtotal,
         taxAmount: tax,
         tipAmount: tip,

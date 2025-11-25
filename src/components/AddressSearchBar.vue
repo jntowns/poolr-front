@@ -90,32 +90,53 @@
             }"
           >
             <div class="flex items-start">
+              <!-- Dynamic icon based on type -->
               <svg
-                class="w-5 h-5 mt-0.5 mr-3 text-gray-400 flex-shrink-0"
+                class="w-5 h-5 mt-0.5 mr-3 flex-shrink-0"
+                :class="getIconColor(address)"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
               >
                 <path
+                  v-if="address.type === 'poi'"
                   stroke-linecap="round"
                   stroke-linejoin="round"
                   stroke-width="2"
-                  d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                  d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
                 />
                 <path
+                  v-else
                   stroke-linecap="round"
                   stroke-linejoin="round"
                   stroke-width="2"
-                  d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                  d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0zM15 11a3 3 0 11-6 0 3 3 0 016 0z"
                 />
               </svg>
               <div class="flex-1 min-w-0">
-                <p class="text-sm font-medium text-gray-900 truncate">
-                  {{ address.fullAddress }}
+                <!-- Primary: Name/Description in bold -->
+                <p class="text-sm font-semibold text-gray-900 truncate">
+                  {{ getPrimaryText(address) }}
                 </p>
-                <p class="text-sm text-gray-500 mt-0.5">
-                  {{ formatAddressDetails(address) }}
-                </p>
+                <!-- Secondary: Type/Category and Location -->
+                <div class="flex items-center mt-1 text-xs text-gray-500 gap-2">
+                  <span
+                    v-if="address.type === 'poi'"
+                    class="inline-flex items-center px-2 py-0.5 rounded bg-gray-100 text-gray-700"
+                  >
+                    {{ formatCategory(address) }}
+                  </span>
+                  <span class="truncate">{{ getSecondaryText(address) }}</span>
+                  <span
+                    v-if="
+                      address.distance !== null &&
+                      address.distance !== undefined
+                    "
+                    class="inline-flex items-center px-2 py-0.5 rounded bg-blue-100 text-blue-700 text-xs font-medium ml-auto flex-shrink-0"
+                  >
+                    {{ formatDistance(address.distance) }}
+                  </span>
+                </div>
               </div>
             </div>
           </li>
@@ -180,14 +201,12 @@
 <script setup>
 import { ref, computed, watch } from "vue";
 import { useAddressStore } from "../stores/addressStore";
-import { useI18n } from "vue-i18n";
-
-const { t } = useI18n();
+import { getPrimaryText, getSecondaryText } from "../utils/addressUtils";
 
 const props = defineProps({
   placeholder: {
     type: String,
-    default: "searchAddressPlaceholder",
+    default: "Search for an address...",
   },
   minChars: {
     type: Number,
@@ -205,6 +224,10 @@ const props = defineProps({
     type: Object,
     default: null,
   },
+  userLocation: {
+    type: Object,
+    default: null,
+  },
 });
 
 const emit = defineEmits(["update:modelValue", "select", "clear"]);
@@ -214,6 +237,7 @@ const suggestions = ref([]);
 const isFocused = ref(false);
 const highlightedIndex = ref(-1);
 let debounceTimer = null;
+
 const showSuggestions = computed(() => {
   return isFocused.value && searchQuery.value.length >= props.minChars;
 });
@@ -243,7 +267,9 @@ const fetchAddresses = async () => {
   try {
     const results = await addressStore.searchAddresses(
       searchQuery.value,
-      props.maxResults
+      props.maxResults,
+      props.userLocation?.latitude,
+      props.userLocation?.longitude
     );
     suggestions.value = results;
   } catch (err) {
@@ -252,7 +278,7 @@ const fetchAddresses = async () => {
 };
 
 const selectAddress = (address) => {
-  searchQuery.value = address.fullAddress;
+  searchQuery.value = getPrimaryText(address);
   suggestions.value = [];
   highlightedIndex.value = -1;
   addressStore.setSelectedAddress(address);
@@ -312,20 +338,48 @@ const selectHighlighted = () => {
   }
 };
 
-const formatAddressDetails = (address) => {
-  const parts = [];
-  if (address.housenumber) parts.push(address.housenumber);
-  if (address.street) parts.push(address.street);
-  if (address.city) parts.push(address.city);
-  if (address.postcode) parts.push(address.postcode);
-  return parts.join(", ");
+const formatCategory = (address) => {
+  if (!address.category) return "";
+  const category =
+    address.category.charAt(0).toUpperCase() + address.category.slice(1);
+
+  if (address.subcategory) {
+    const subcategory = address.subcategory.replace(/_/g, " ");
+    return `${subcategory.charAt(0).toUpperCase()}${subcategory.slice(1)}`;
+  }
+
+  return category;
+};
+
+const getIconColor = (address) => {
+  if (address.type === "poi") {
+    const categoryColors = {
+      food: "text-orange-500",
+      entertainment: "text-purple-500",
+      accommodation: "text-blue-500",
+      transportation: "text-green-500",
+      healthcare: "text-red-500",
+      shopping: "text-pink-500",
+    };
+    return categoryColors[address.category] || "text-gray-400";
+  }
+  return "text-gray-400";
+};
+
+const formatDistance = (distance) => {
+  if (distance === null || distance === undefined) return "";
+  // Distance is already in kilometers from backend
+  if (distance < 1) {
+    return `${Math.round(distance * 1000)} m`;
+  }
+  return `${distance.toFixed(1)} km`;
 };
 
 watch(
   () => props.modelValue,
   (newValue) => {
     if (newValue) {
-      searchQuery.value = newValue.fullAddress;
+      searchQuery.value = getPrimaryText(newValue);
     } else {
       searchQuery.value = "";
     }

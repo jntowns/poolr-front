@@ -1,10 +1,8 @@
 <template>
   <div class="ride-search-results">
-    <h2 class="text-xl font-bold text-gray-900 mb-4">
-      {{ t("rides.availableRides") }}
-    </h2>
+    <h2 class="text-xl font-bold text-gray-900 mb-4">Available Rides</h2>
     <div v-if="futureRides.length === 0" class="text-center py-8 text-gray-500">
-      {{ t("rides.noRidesFound") }}
+      No rides found. Try adjusting your search criteria.
     </div>
     <div v-else class="space-y-4">
       <div
@@ -20,10 +18,6 @@
           <div class="flex-1">
             <div class="flex items-center gap-2 mb-2">
               <h3 class="font-semibold text-gray-900">{{ ride.driverName }}</h3>
-              <span class="text-xs px-2 py-1 bg-blue-100 text-blue-800 rounded">
-                {{ ride.distanceFromUserKm.toFixed(2) }} km
-                {{ t("rides.away") }}
-              </span>
             </div>
             <p class="text-sm text-gray-600 mb-1">
               {{ ride.vehicle }} • {{ ride.vehicleColor }}
@@ -49,8 +43,9 @@
               }}
             </p>
             <p class="text-xs text-gray-500">
-              {{ ride.rideDistanceKm.toFixed(2) }} km •
-              {{ t("rides.subtotal") }}:
+              {{ (ride.rideDistanceKm || 0).toFixed(2) }} km trip •
+              {{ (ride.detourDistance || 0).toFixed(2) }} km detour for driver •
+              Subtotal:
               {{
                 ride.pricing ? formatCurrency(ride.pricing.subtotalAmount) : "—"
               }}
@@ -62,7 +57,7 @@
             class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1"
             @click.stop="$emit('select', ride)"
           >
-            {{ t("rides.useThisRide") }}
+            Use This Ride
           </button>
         </div>
       </div>
@@ -73,7 +68,7 @@
 <script setup>
 import { computed } from "vue";
 import { formatCurrency } from "../utils/pricing";
-import { useI18n } from "vue-i18n";
+import { getDepartureInfo } from "../utils/dateUtils";
 
 const { t } = useI18n();
 const props = defineProps({
@@ -91,27 +86,6 @@ const futureRides = computed(() => {
   const now = new Date();
   return props.rides.filter((ride) => new Date(ride.startTime) > now);
 });
-
-const getDepartureInfo = (startTime) => {
-  const now = new Date();
-  const start = new Date(startTime);
-  const diffMs = start - now;
-  if (diffMs <= 0) return t("rides.departed");
-  const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-  const diffMinutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
-  let timeString = "";
-  if (diffHours > 0) {
-    timeString = t("rides.leavesInHours", { hours: diffHours });
-  } else {
-    timeString = t("rides.leavesInMinutes", { minutes: diffMinutes });
-  }
-  const formattedTime = start.toLocaleTimeString([], {
-    hour: "numeric",
-    minute: "2-digit",
-    hour12: true,
-  });
-  return `${timeString} (${formattedTime})`;
-};
 
 defineEmits(["select"]);
 </script>

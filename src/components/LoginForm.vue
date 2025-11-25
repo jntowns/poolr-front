@@ -1,28 +1,24 @@
 <template>
   <div
-    class="flex min-h-full max-w-md min-w-md border border-gray-200 rounded-lg flex-col justify-center px-6 py-12 lg:px-8 bg-sky-900"
+    class="flex min-h-full max-w-md w-full border border-slate-100 rounded-2xl flex-col justify-center px-6 py-12 lg:px-8 bg-white shadow-2xl"
   >
     <div class="sm:mx-auto sm:w-full sm:max-w-sm">
       <img
         :src="poolrLogo"
         alt="Poolr Logo"
-        class="mx-auto h-25 w-auto rounded-lg"
+        class="mx-auto h-25 w-auto rounded-xl shadow-md"
       />
       <h2
-        class="mt-10 text-center text-2xl/9 font-bold tracking-tight text-white"
+        class="mt-10 text-center text-2xl/9 font-bold tracking-tight text-slate-900"
       >
-        {{ t("loginTitle") }}
+        Login
       </h2>
     </div>
 
     <div class="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
       <form @submit.prevent="submitForm" class="space-y-6">
         <div>
-          <label
-            for="email"
-            class="block text-sm/6 font-medium text-gray-100"
-            >{{ t("emailAddress") }}</label
-          >
+          <label for="email" class="form-label">Email address</label>
           <div class="mt-2">
             <input
               v-model="login.email"
@@ -31,17 +27,13 @@
               name="email"
               required
               autocomplete="email"
-              class="block w-full rounded-md bg-white/5 px-3 py-1.5 text-base text-white outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500 sm:text-sm/6"
+              class="form-input"
             />
           </div>
         </div>
 
         <div>
-          <label
-            for="password"
-            class="block text-sm/6 font-medium text-gray-100"
-            >{{ t("password") }}</label
-          >
+          <label for="password" class="form-label">Password</label>
           <div class="mt-2">
             <input
               v-model="login.password"
@@ -50,21 +42,17 @@
               name="password"
               required
               autocomplete="current-password"
-              :placeholder="t('passwordPlaceholder')"
-              class="block w-full rounded-md bg-white/5 px-3 py-1.5 text-base text-white outline-1 -outline-offset-1 outline-white/10 placeholder:text-gray-500 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-500 sm:text-sm/6"
+              class="form-input"
             />
           </div>
         </div>
 
         <div>
-          <button
-            type="submit"
-            class="flex w-full justify-center rounded-md bg-indigo-500 px-3 py-1.5 text-sm/6 font-semibold text-white hover:bg-indigo-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
-          >
-            {{ t("loginButton") }}
-          </button>
+          <button type="submit" class="btn-primary">Login</button>
         </div>
       </form>
+
+      <DemoAccountButton />
     </div>
   </div>
 </template>
@@ -76,9 +64,8 @@ import { showToast } from "../utils/BaseToast";
 import { reactive } from "vue";
 import { useRouter } from "vue-router";
 import { useIdentityStore } from "../stores/identityStore";
-import { useI18n } from "vue-i18n";
+import DemoAccountButton from "./DemoAccountButton.vue";
 
-const { t } = useI18n();
 const identityStore = useIdentityStore();
 const router = useRouter();
 

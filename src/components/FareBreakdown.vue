@@ -1,30 +1,46 @@
 <template>
   <div class="pricing-section">
-    <h2>{{ t("fareBreakdown") }}</h2>
+    <h2>Fare Breakdown</h2>
     <ul>
-      <li>
-        <span>{{ t("subtotal") }}</span>
+      <li v-if="pricing.baseFareAmount !== undefined">
+        <span>Base Fare</span>
+        <span>{{ formatCurrency(pricing.baseFareAmount) }}</span>
+      </li>
+      <li v-if="pricing.distanceCostAmount !== undefined">
+        <span>Distance Cost</span>
+        <span>{{ formatCurrency(pricing.distanceCostAmount) }}</span>
+      </li>
+      <li
+        v-if="
+          pricing.detourCostAmount !== undefined && pricing.detourCostAmount > 0
+        "
+      >
+        <span>Detour Cost</span>
+        <span>{{ formatCurrency(pricing.detourCostAmount) }}</span>
+      </li>
+      <li class="subtotal-row">
+        <span>Subtotal</span>
         <span>{{ formatCurrency(pricing.subtotalAmount) }}</span>
       </li>
       <li>
-        <span>{{ t("tax") }}</span>
+        <span>Tax</span>
         <span>{{ formatCurrency(pricing.taxAmount) }}</span>
       </li>
       <li>
-        <span>{{ t("platformFee") }}</span>
+        <span>Platform Fee</span>
         <span>{{ formatCurrency(pricing.platformFeeAmount) }}</span>
       </li>
       <li>
-        <span>{{ t("externalFee") }}</span>
+        <span>External Fee</span>
         <span>{{ formatCurrency(pricing.externalFeeAmount) }}</span>
       </li>
       <li>
-        <span>{{ t("tip") }}</span>
+        <span>Tip</span>
         <span>{{ formatCurrency(pricing.tipAmount) }}</span>
       </li>
     </ul>
     <div class="pricing-total">
-      <span>{{ t("totalDue") }}</span>
+      <span>Total Due</span>
       <span>{{ formatCurrency(pricing.grossAmount) }}</span>
     </div>
   </div>
@@ -83,5 +99,9 @@ defineProps({
   font-size: 18px;
   font-weight: 700;
   color: #111827;
+}
+.subtotal-row {
+  font-weight: 600;
+  border-bottom: 1px solid #e5e7eb;
 }
 </style>

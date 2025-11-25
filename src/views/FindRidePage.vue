@@ -1,20 +1,18 @@
 <template>
-  <div class="min-h-screen py-12 px-4 sm:px-6 lg:px-8">
+  <div class="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
     <div class="max-w-2xl mx-auto">
       <div class="bg-white rounded-xl shadow-lg p-8">
-        <h1 class="text-3xl font-bold text-gray-900 mb-6">
-          {{ t("findRideH") }}
-        </h1>
+        <h1 class="text-3xl font-bold text-gray-900 mb-6">Find a Ride</h1>
 
         <div class="mb-6">
           <label class="block text-sm font-medium text-gray-700 mb-2">
-            {{ t("fromLabel") }}
+            From (Your Location)
           </label>
           <div class="flex gap-2">
             <div class="flex-1">
               <AddressSearchBar
                 v-model="origin"
-                :placeholder="t('fromPlaceholder')"
+                placeholder="Enter pickup location..."
                 :min-chars="2"
                 :debounce-delay="300"
                 :max-results="10"
@@ -26,7 +24,7 @@
               @click="getUserLocation"
               :disabled="isGettingLocation"
               class="px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition duration-200 flex items-center gap-2"
-              :title="t('useMyLocation')"
+              title="Use my current location"
             >
               <svg
                 v-if="!isGettingLocation"
@@ -74,14 +72,15 @@
 
         <div class="mb-6">
           <label class="block text-sm font-medium text-gray-700 mb-2">
-            {{ t("toLabel") }}
+            To (Destination)
           </label>
           <AddressSearchBar
             v-model="destination"
-            :placeholder="t('toPlaceholder')"
+            placeholder="Enter destination..."
             :min-chars="2"
             :debounce-delay="300"
             :max-results="10"
+            :user-location="origin"
             @select="handleDestinationSelect"
             @clear="handleDestinationClear"
           />
@@ -102,9 +101,9 @@
               >
                 <circle cx="10" cy="10" r="8" />
               </svg>
-              {{ t("pickupLocation") }}
+              Pickup Location
             </h3>
-            <p class="text-sm text-gray-900">{{ origin.fullAddress }}</p>
+            <p class="text-sm text-gray-900">{{ getPrimaryText(origin) }}</p>
           </div>
 
           <div
@@ -133,9 +132,11 @@
                   d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
                 />
               </svg>
-              {{ t("destinationLabel") }}
+              Destination
             </h3>
-            <p class="text-sm text-gray-900">{{ destination.fullAddress }}</p>
+            <p class="text-sm text-gray-900">
+              {{ getFullAddressText(destination) }}
+            </p>
           </div>
         </div>
 
@@ -145,7 +146,7 @@
           :disabled="isSearching"
           class="w-full mt-6 px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition duration-200"
         >
-          {{ isSearching ? t("searching") : t("searchAvailableRides") }}
+          {{ isSearching ? "Searching..." : "Find Available Rides" }}
         </button>
       </div>
     </div>
@@ -158,15 +159,9 @@ import { useRouter } from "vue-router";
 import { useAddressStore } from "../stores/addressStore";
 import { useMapStore } from "../stores/mapStore";
 import AddressSearchBar from "../components/AddressSearchBar.vue";
+import { getPrimaryText, getFullAddressText } from "../utils/addressUtils";
 import apiClient from "../utils/apiClient";
 import { showToast } from "../utils/BaseToast";
-import { useThemeStore } from "../stores/theme";
-import { useI18n } from "vue-i18n";
-
-const theme = useThemeStore();
-
-const { t, locale } = useI18n();
-const selectedLanguage = ref(locale.value);
 
 const router = useRouter();
 const addressStore = useAddressStore();
@@ -206,7 +201,7 @@ const handleDestinationClear = () => {
 
 const getUserLocation = () => {
   if (!navigator.geolocation) {
-    showToast(t("toast_geolocationNotSupported"), "error");
+    showToast("Geolocation is not supported by your browser", "error");
     return;
   }
 
@@ -217,23 +212,26 @@ const getUserLocation = () => {
       try {
         const { latitude, longitude } = position.coords;
 
-        const response = await apiClient.get("/api/addresses/reverse", {
+        const response = await apiClient.get("/api/search/reverse", {
           params: { lat: latitude, lon: longitude },
         });
 
         const address = response.data;
         addressStore.setOrigin(address);
-        showToast(t("toast_locationFound"), "success");
+        showToast("Location found!", "success");
       } catch (error) {
         console.error("Error reverse geocoding:", error);
-        showToast(t("toast_reverseError"), "error");
+        showToast("Failed to get address from location", "error");
       } finally {
         isGettingLocation.value = false;
       }
     },
     (error) => {
       console.error("Geolocation error:", error);
-      showToast(t("toast_locationError"), "error");
+      showToast(
+        "Failed to get your location. Please enter it manually.",
+        "error"
+      );
       isGettingLocation.value = false;
     },
     {
@@ -249,19 +247,18 @@ const findRide = async () => {
 
   isSearching.value = true;
   try {
-    showToast(t("toast_searchingRides"), "info");
+    showToast("Searching for available rides...", "info");
     const rides = await mapStore.fetchNearbyRides(
       origin.value.latitude,
       origin.value.longitude,
-      10
+      destination.value.latitude,
+      destination.value.longitude
     );
     if (rides.length === 0) {
-      showToast(t("toast_noRides"), "warning");
+      showToast("No rides found nearby", "warning");
     } else {
       showToast(
-        `${t("toast_ridesFound", { count: rides.length })}${
-          rides.length > 1 ? "s" : ""
-        }`,
+        `Found ${rides.length} available ride${rides.length > 1 ? "s" : ""}`,
         "success"
       );
       router.push("/ride-results");

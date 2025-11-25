@@ -2,7 +2,7 @@
   <div class="transaction-page">
     <div v-if="selectedRide" class="transaction-content">
       <section class="map-preview">
-        <h2>{{ t("transaction_routeMap") }}</h2>
+        <h2>Route Map</h2>
         <div class="map-wrapper">
           <RouteMap />
         </div>
@@ -10,9 +10,9 @@
 
       <section class="transaction-card">
         <header>
-          <h1>{{ t("transaction_confirmRide") }}</h1>
+          <h1>Confirm Your Ride</h1>
           <p class="provider-note">
-            {{ t("transaction_providerNote") }}
+            Complete your booking with PayPal or a credit card.
           </p>
         </header>
 
