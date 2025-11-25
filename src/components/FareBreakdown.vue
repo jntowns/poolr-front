@@ -2,7 +2,19 @@
     <div class="pricing-section">
         <h2>Fare Breakdown</h2>
         <ul>
-            <li>
+            <li v-if="pricing.baseFareAmount !== undefined">
+                <span>Base Fare</span>
+                <span>{{ formatCurrency(pricing.baseFareAmount) }}</span>
+            </li>
+            <li v-if="pricing.distanceCostAmount !== undefined">
+                <span>Distance Cost</span>
+                <span>{{ formatCurrency(pricing.distanceCostAmount) }}</span>
+            </li>
+            <li v-if="pricing.detourCostAmount !== undefined && pricing.detourCostAmount > 0">
+                <span>Detour Cost</span>
+                <span>{{ formatCurrency(pricing.detourCostAmount) }}</span>
+            </li>
+            <li class="subtotal-row">
                 <span>Subtotal</span>
                 <span>{{ formatCurrency(pricing.subtotalAmount) }}</span>
             </li>
@@ -80,5 +92,9 @@ defineProps({
     font-size: 18px;
     font-weight: 700;
     color: #111827;
+}
+.subtotal-row {
+    font-weight: 600;
+    border-bottom: 1px solid #e5e7eb;
 }
 </style>

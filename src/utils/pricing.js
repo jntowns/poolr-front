@@ -23,8 +23,10 @@ export function calculateRidePricing(distanceKm = 0, detourDistanceKm = 0, optio
     const safeDistance = Number.isFinite(distanceKm) && distanceKm > 0 ? distanceKm : 0
     const safeDetourDistance = Number.isFinite(detourDistanceKm) && detourDistanceKm > 0 ? detourDistanceKm : 0
 
-    const subtotal = roundToCents(baseFare + safeDistance * perKmRate + safeDetourDistance * PER_KM_DETOUR_RATE)
-    console.log(subtotal);
+    const distanceCost = roundToCents(safeDistance * perKmRate)
+    const detourCost = roundToCents(safeDetourDistance * perKmDetourRate)
+    const subtotal = roundToCents(baseFare + distanceCost + detourCost)
+
     const platformFee = roundToCents(subtotal * platformFeeRate)
     const externalFee = roundToCents(externalFeeFlat)
     const tip = roundToCents(subtotal * tipRate)
@@ -34,6 +36,9 @@ export function calculateRidePricing(distanceKm = 0, detourDistanceKm = 0, optio
 
     return {
         currency,
+        baseFareAmount: baseFare,
+        distanceCostAmount: distanceCost,
+        detourCostAmount: detourCost,
         subtotalAmount: subtotal,
         taxAmount: tax,
         tipAmount: tip,
