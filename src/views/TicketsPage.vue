@@ -1,114 +1,125 @@
 <template>
-    <div class="max-w-2xl mx-auto my-8 px-4">
-        <div class="bg-white rounded-lg p-8 shadow-md">
-            <h1 class="text-3xl font-semibold mb-6 text-gray-800 text-center">
+    <div class="max-w-5xl mx-auto my-10 px-4 sm:px-6 lg:px-8">
+
+        <!-- Header -->
+        <div class="flex justify-between items-center mb-8">
+            <h1 class="text-3xl font-bold text-white tracking-tight">
                 Your Tickets
             </h1>
+            <span v-if="tickets.length > 0"
+                class="text-sm text-blue-200 bg-blue-900/50 px-3 py-1 rounded-full border border-blue-800">
+                {{ tickets.length }} Upcoming
+            </span>
+        </div>
 
-            <div v-if="ticketStore.loading" class="text-center py-8 text-gray-500">
-                <div
-                    class="w-12 h-12 mx-auto mb-4 border-4 border-gray-200 border-t-blue-600 rounded-full animate-spin">
-                </div>
-                <p>Loading tickets...</p>
-            </div>
+        <!-- Loading State -->
+        <div v-if="ticketStore.loading"
+            class="flex flex-col items-center justify-center py-20 bg-white rounded-2xl shadow-xl">
+            <div class="w-12 h-12 border-4 border-blue-100 border-t-blue-600 rounded-full animate-spin mb-4"></div>
+            <p class="text-gray-500 font-medium">Retrieving your tickets...</p>
+        </div>
 
-            <div v-else-if="tickets.length === 0" class="text-center text-gray-500 py-8 bg-gray-50 rounded-lg">
-                <svg class="w-12 h-12 mx-auto mb-3 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M9 20l-1.447 1.342A1 1 0 016 20.764V18m9-14H9a2 2 0 00-2 2v1H5a2 2 0 00-2 2v3.5a2.5 2.5 0 000 5V20a2 2 0 002 2h10a2 2 0 002-2v-1.5a2.5 2.5 0 000-5V9a2 2 0 00-2-2h-1V6a2 2 0 00-2-2z" />
+        <!-- Empty State -->
+        <div v-else-if="tickets.length === 0"
+            class="flex flex-col items-center justify-center py-20 bg-white rounded-2xl shadow-xl text-center px-6">
+            <div class="bg-blue-50 p-6 rounded-full mb-6">
+                <!-- Ticket Icon -->
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-blue-500" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                        d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
                 </svg>
-                <p>No tickets yet.</p>
-                <p class="text-sm mt-1">
-                    Book a ride to see your tickets here.
-                </p>
             </div>
+            <h3 class="text-xl font-bold text-gray-900 mb-2">No tickets yet</h3>
+            <p class="text-gray-500 max-w-sm mb-8">
+                Ready to hit the road? Book a ride now to see your upcoming trips and ticket details here.
+            </p>
+            <router-link to="/find-ride"
+                class="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors shadow-lg shadow-blue-600/20">
+                Book a Ride
+            </router-link>
+        </div>
 
-            <div v-else class="space-y-4">
-                <div v-for="ticket in tickets" :key="ticket.ticketId"
-                    class="bg-gray-50 border border-gray-200 rounded-xl p-5 hover:shadow-lg transition-all duration-200">
-                    <div class="flex justify-between items-start mb-3">
-                        <div>
-                            <p class="text-xs text-gray-400 mb-1">
-                                Ticket #{{ ticket.ticketId }}
-                            </p>
-                            <div class="flex items-center gap-2">
-                                <span class="text-xs font-medium text-gray-500 uppercase tracking-wide">
-                                    Confirmation
-                                </span>
-                                <span
-                                    class="px-2.5 py-1 text-xs font-mono font-semibold tracking-widest rounded-full bg-blue-50 text-blue-700 border border-blue-100">
-                                    {{ ticket.confirmationCode }}
-                                </span>
-                            </div>
-                        </div>
-                        <div class="text-right min-w-[140px]">
-                            <p v-if="ticket.rideDistanceKm" class="text-xs text-gray-500">
-                                {{ ticket.rideDistanceKm.toFixed(2) }} km
-                            </p>
-                            <p class="text-xs text-gray-400 mt-1">
-                                Booked at
-                                {{ new Date(ticket.createdAt).toLocaleString() }}
-                            </p>
-                        </div>
+        <!-- Ticket Grid -->
+        <div v-else class="grid gap-6 sm:grid-cols-1 lg:grid-cols-2">
+            <div v-for="ticket in tickets" :key="ticket.ticketId"
+                class="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 flex flex-col">
+
+                <!-- Ticket Header -->
+                <div class="bg-gray-50 px-6 py-4 border-b border-gray-100 flex justify-between items-center">
+                    <div>
+                        <p class="text-xs font-bold text-blue-600 uppercase tracking-wider mb-1">Departure</p>
+                        <p class="text-lg font-bold text-gray-900">
+                            {{ formatDeparture(ticket.startTime) }}
+                        </p>
                     </div>
-
-                    <div class="flex justify-between items-start mb-3">
-                        <div>
-                            <p class="text-sm text-gray-600">
-                                Driver:
-                                <span class="font-medium text-gray-800">
-                                    {{ ticket.driverName }}
-                                </span>
-                            </p>
-                            <p class="text-sm text-gray-600">
-                                {{ ticket.vehicle }} • {{ ticket.vehicleColor }}
-                            </p>
-                        </div>
-                    </div>
-
-                    <div class="relative pl-6 space-y-3 mt-2">
+                    <div class="text-right">
                         <div
-                            class="absolute left-[7px] top-2 bottom-2 w-0.5 bg-gradient-to-b from-green-400 to-red-400">
-                        </div>
-
-                        <div class="flex items-start">
-                            <div
-                                class="absolute left-0 mt-1.5 w-4 h-4 rounded-full bg-green-500 border-2 border-white shadow">
-                            </div>
-                            <div class="ml-4">
-                                <span class="text-xs font-medium text-gray-500 uppercase tracking-wide">From</span>
-                                <p class="text-gray-800 font-medium">
-                                    {{ ticket.startAddress }}
-                                </p>
-                            </div>
-                        </div>
-
-                        <div class="flex items-start">
-                            <div
-                                class="absolute left-0 mt-1.5 w-4 h-4 rounded-full bg-red-500 border-2 border-white shadow">
-                            </div>
-                            <div class="ml-4">
-                                <span class="text-xs font-medium text-gray-500 uppercase tracking-wide">To</span>
-                                <p class="text-gray-800 font-medium">
-                                    {{ ticket.endAddress }}
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="mt-4 pt-3 border-t border-gray-100 flex justify-between items-start">
-                        <p class="text-sm text-gray-700">
-                            Departure:
-                            <span class="font-medium">
-                                {{ formatDeparture(ticket.startTime) }}
+                            class="inline-flex items-center gap-2 bg-white px-3 py-1.5 rounded-lg border border-gray-200 shadow-sm">
+                            <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Code</span>
+                            <span class="font-mono text-sm font-bold text-gray-800 tracking-wider">
+                                {{ ticket.confirmationCode }}
                             </span>
-                        </p>
-                        <p class="text-xs text-gray-500 text-right max-w-[220px] leading-snug ml-4">
-                            <span class="block">Show this code to your driver</span>
-                            <span class="block mt-0.5">to verify your ride.</span>
-                        </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Ticket Body -->
+                <div class="p-6 flex-grow">
+                    <!-- Route Timeline -->
+                    <div class="relative pl-4 space-y-8 mb-8">
+                        <!-- Connecting Line -->
+                        <div class="absolute left-[19px] top-3 bottom-3 w-0.5 bg-gray-200"></div>
+
+                        <!-- From -->
+                        <div class="relative flex items-start">
+                            <div
+                                class="absolute left-0 mt-1 w-2.5 h-2.5 rounded-full bg-white border-[3px] border-green-500 z-10">
+                            </div>
+                            <div class="ml-6">
+                                <p class="text-xs font-semibold text-gray-400 uppercase">From</p>
+                                <p class="text-gray-900 font-medium leading-tight mt-0.5">{{ ticket.startAddress }}</p>
+                            </div>
+                        </div>
+
+                        <!-- To -->
+                        <div class="relative flex items-start">
+                            <div
+                                class="absolute left-0 mt-1 w-2.5 h-2.5 rounded-full bg-white border-[3px] border-red-500 z-10">
+                            </div>
+                            <div class="ml-6">
+                                <p class="text-xs font-semibold text-gray-400 uppercase">To</p>
+                                <p class="text-gray-900 font-medium leading-tight mt-0.5">{{ ticket.endAddress }}</p>
+                            </div>
+                        </div>
                     </div>
 
+                    <!-- Driver Info Card -->
+                    <div class="bg-gray-50 rounded-xl p-4 flex items-center justify-between border border-gray-100">
+                        <div class="flex items-center gap-3">
+                            <!-- Avatar Placeholder with Initials -->
+                            <div
+                                class="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 font-bold text-sm border-2 border-white shadow-sm">
+                                {{ getInitials(ticket.driverName) }}
+                            </div>
+                            <div>
+                                <p class="text-sm font-bold text-gray-900">{{ ticket.driverName }}</p>
+                                <p class="text-xs text-gray-500">{{ ticket.vehicleColor }} {{ ticket.vehicle }}</p>
+                            </div>
+                        </div>
+
+                        <div v-if="ticket.rideDistanceKm" class="text-right">
+                            <p class="text-xs text-gray-400">Distance</p>
+                            <p class="text-xs font-semibold text-gray-700">{{ ticket.rideDistanceKm.toFixed(1) }} km</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Footer / Metadata -->
+                <div
+                    class="px-6 py-3 bg-gray-50 border-t border-gray-100 flex justify-between items-center text-xs text-gray-400">
+                    <span>Ticket #{{ ticket.ticketId }}</span>
+                    <span>Booked {{ formatDate(ticket.createdAt) }}</span>
                 </div>
             </div>
         </div>
@@ -127,15 +138,31 @@ onMounted(() => {
     ticketStore.fetchMyTickets()
 })
 
+const getInitials = (name) => {
+    if (!name) return 'DR';
+    return name
+        .split(' ')
+        .map(n => n[0])
+        .join('')
+        .toUpperCase()
+        .substring(0, 2);
+}
+
 const formatDeparture = (startTime) => {
     if (!startTime) return 'Unknown'
     const d = new Date(startTime)
-    return d.toLocaleString([], {
-        hour: 'numeric',
-        minute: '2-digit',
-        year: 'numeric',
+    // Format: Nov 27 • 7:22 AM
+    return d.toLocaleDateString('en-US', {
         month: 'short',
         day: 'numeric'
+    }) + ' • ' + d.toLocaleTimeString('en-US', {
+        hour: 'numeric',
+        minute: '2-digit'
     })
+}
+
+const formatDate = (dateString) => {
+    if (!dateString) return ''
+    return new Date(dateString).toLocaleDateString()
 }
 </script>

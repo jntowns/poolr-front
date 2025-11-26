@@ -4,6 +4,7 @@ import { showToast } from '../utils/BaseToast'
 import apiClient from '../utils/apiClient'
 import router from "../router/index.js";
 import { useMapStore } from '../stores/mapStore.js'
+import { getFullAddressText } from '../utils/addressUtils'
 
 
 export function usePayPal() {
@@ -110,7 +111,9 @@ export function usePayPal() {
                         if (ride && ride.rideId) {
                             try {
                                 await apiClient.post('/api/tickets', {
-                                    rideId: ride.rideId
+                                    rideId: ride.rideId,
+                                    pickupAddress: getFullAddressText(mapStore.userOrigin),
+                                    dropoffAddress: getFullAddressText(mapStore.userDestination)
                                 })
                             } catch (ticketError) {
                                 console.error('Failed to create ticket after payment', ticketError)

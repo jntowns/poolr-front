@@ -8,6 +8,8 @@ export const useMapStore = defineStore('map', {
         routeData: null,
         nearbyRides: [],
         selectedRide: null,
+        userOrigin: null,
+        userDestination: null,
         hoveredElement: null
     }),
     actions: {
@@ -55,6 +57,8 @@ export const useMapStore = defineStore('map', {
         },
         setSelectedRide(ride, userOrigin, userDestination) {
             this.selectedRide = ride
+            this.userOrigin = userOrigin
+            this.userDestination = userDestination
             const waypoints = [
                 { lat: ride.startLatitude, lon: ride.startLongitude },
                 { lat: userOrigin.latitude, lon: userOrigin.longitude },
@@ -68,6 +72,8 @@ export const useMapStore = defineStore('map', {
             this.routeData = null
             this.nearbyRides = []
             this.selectedRide = null
+            this.userOrigin = null
+            this.userDestination = null
         }
     }
 })
