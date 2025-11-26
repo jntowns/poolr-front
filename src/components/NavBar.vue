@@ -40,6 +40,12 @@
               >
                 Tickets
               </router-link>
+              <router-link
+                to="/settings"
+                class="text-cool-white hover:text-electric-blue transition-colors font-medium text-sm pushButton"
+              >
+                Settings
+              </router-link>
             </div>
           </div>
         </div>
