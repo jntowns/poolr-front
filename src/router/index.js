@@ -4,8 +4,7 @@ import OfferRidePage from "../views/OfferRidePage.vue";
 import DriverSetupPage from "../views/DriverSetupPage.vue";
 import FindRidePage from "../views/FindRidePage.vue";
 import AboutPage from "../views/AboutPage.vue";
-import LoginPage from "../views/LoginPage.vue";
-import RegisterPage from "../views/RegisterPage.vue";
+import AuthPage from "../views/AuthPage.vue";
 import MapPage from "../views/MapPage.vue";
 import ErrorPage from "../views/ErrorPage.vue";
 import MyProfilePage from "../views/MyProfilePage.vue";
@@ -63,13 +62,13 @@ const router = createRouter({
     {
       path: "/login",
       name: "login",
-      component: LoginPage,
+      component: AuthPage,
       meta: { title: "Login" },
     },
     {
       path: "/register",
       name: "register",
-      component: RegisterPage,
+      component: AuthPage,
       meta: { title: "Register" },
     },
     {
@@ -110,7 +109,7 @@ const router = createRouter({
         },
         {
           path: "rideHistory",
-          name: "rideHistory",
+          name: "settingsRideHistory",
           component: RideHistoryPage,
           meta: { title: "Ride History" },
         },
