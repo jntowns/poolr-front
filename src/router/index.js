@@ -93,7 +93,7 @@ const router = createRouter({
             path: "/settings",
             name: "settings",
             component: SettingsPage,
-            meta: { title: "Settings", requiresAuth: true },
+            meta: { title: "Settings", requiresAuth: false },
             children: [
                 {
                     path: "profile",

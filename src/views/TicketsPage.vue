@@ -118,7 +118,7 @@
                 <!-- Footer / Metadata -->
                 <div
                     class="px-6 py-3 bg-gray-50 border-t border-gray-100 flex justify-between items-center text-xs text-gray-400">
-                    <span>Ticket #{{ ticket.ticketId }}</span>
+                    <!-- <span>Ticket #{{ ticket.ticketId }}</span> -->
                     <span>Booked {{ formatDate(ticket.createdAt) }}</span>
                 </div>
             </div>

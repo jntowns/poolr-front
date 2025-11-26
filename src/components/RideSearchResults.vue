@@ -81,7 +81,11 @@ const props = defineProps({
 
 const futureRides = computed(() => {
     const now = new Date();
-    return props.rides.filter((ride) => new Date(ride.startTime) > now);
+    return props.rides.filter((ride) => {
+        const isFuture = new Date(ride.startTime) > now;
+        const hasValidDetour = ride.detourDistance && ride.detourDistance > 0;
+        return isFuture && hasValidDetour;
+    });
 });
 
 defineEmits(["select"]);
