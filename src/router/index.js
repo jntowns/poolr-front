@@ -15,118 +15,130 @@ import RideHistoryPage from "../views/RideHistoryPage.vue";
 import TicketsPage from "../views/TicketsPage.vue";
 
 const router = createRouter({
-  history: createWebHistory(),
-  routes: [
-    {
-      path: "/",
-      name: "home",
-      component: HomePage,
-      meta: { title: "Home" },
-    },
-    {
-      path: "/about",
-      name: "about",
-      component: AboutPage,
-      meta: { title: "About" },
-    },
-    {
-      path: "/offer-ride",
-      name: "offerRide",
-      component: OfferRidePage,
-      meta: { title: "Offer Ride" },
-    },
-    {
-      path: "/find-ride",
-      name: "findRide",
-      component: FindRidePage,
-      meta: { title: "Find Ride" },
-    },
-    {
-      path: "/tickets",
-      name: "tickets",
-      component: TicketsPage,
-      meta: { title: "Tickets Page" },
-    },
-    {
-      path: "/ride-results",
-      name: "RideResults",
-      component: RideDetailsPage,
-      meta: { title: "Ride Details" },
-    },
-    {
-      path: "/transaction",
-      name: "transaction",
-      component: TransactionPage,
-      meta: { title: "Confirm Ride" },
-    },
-    {
-      path: "/login",
-      name: "login",
-      component: AuthPage,
-      meta: { title: "Login" },
-    },
-    {
-      path: "/register",
-      name: "register",
-      component: AuthPage,
-      meta: { title: "Register" },
-    },
-    {
-      path: "/map",
-      name: "map",
-      component: MapPage,
-      meta: { title: "Map" },
-    },
-    {
-      path: "/me",
-      name: "MyProfile",
-      component: MyProfilePage,
-      meta: { title: "My Profile" },
-    },
-    {
-      path: "/rideHistory",
-      name: "rideHistory",
-      component: RideHistoryPage,
-      meta: { title: "Ride History" },
-    },
-    {
-      path: "/settings",
-      name: "settings",
-      component: SettingsPage,
-      meta: { title: "Settings" },
-      children: [
+    history: createWebHistory(),
+    routes: [
         {
-          path: "profile",
-          name: "settingsProfile",
-          component: MyProfilePage,
-          meta: { title: "My Profile" },
+            path: "/",
+            name: "home",
+            component: HomePage,
+            meta: { title: "Home" },
         },
         {
-          path: "/driver-setup",
-          name: "DriverSetup",
-          component: DriverSetupPage,
-          meta: { title: "Driver Setup" },
+            path: "/about",
+            name: "about",
+            component: AboutPage,
+            meta: { title: "About" },
         },
         {
-          path: "rideHistory",
-          name: "settingsRideHistory",
-          component: RideHistoryPage,
-          meta: { title: "Ride History" },
+            path: "/offer-ride",
+            name: "offerRide",
+            component: OfferRidePage,
+            meta: { title: "Offer Ride" },
         },
-      ],
-    },
-    {
-      path: "/:pathMatch(.*)*",
-      name: "error",
-      component: ErrorPage,
-      meta: { title: "404" },
-    },
-  ],
+        {
+            path: "/find-ride",
+            name: "findRide",
+            component: FindRidePage,
+            meta: { title: "Find Ride" },
+        },
+        {
+            path: "/tickets",
+            name: "tickets",
+            component: TicketsPage,
+            meta: { title: "Tickets Page", requiresAuth: true },
+        },
+        {
+            path: "/ride-results",
+            name: "RideResults",
+            component: RideDetailsPage,
+            meta: { title: "Ride Details" },
+        },
+        {
+            path: "/transaction",
+            name: "transaction",
+            component: TransactionPage,
+            meta: { title: "Confirm Ride" },
+        },
+        {
+            path: "/login",
+            name: "login",
+            component: AuthPage,
+            meta: { title: "Login", requiresGuest: true },
+        },
+        {
+            path: "/register",
+            name: "register",
+            component: AuthPage,
+            meta: { title: "Register", requiresGuest: true },
+        },
+        {
+            path: "/map",
+            name: "map",
+            component: MapPage,
+            meta: { title: "Map" },
+        },
+        {
+            path: "/me",
+            name: "MyProfile",
+            component: MyProfilePage,
+            meta: { title: "My Profile", requiresAuth: true },
+        },
+        {
+            path: "/rideHistory",
+            name: "rideHistory",
+            component: RideHistoryPage,
+            meta: { title: "Ride History", requiresAuth: true },
+        },
+        {
+            path: "/settings",
+            name: "settings",
+            component: SettingsPage,
+            meta: { title: "Settings", requiresAuth: true },
+            children: [
+                {
+                    path: "profile",
+                    name: "settingsProfile",
+                    component: MyProfilePage,
+                    meta: { title: "My Profile", requiresAuth: true },
+                },
+                {
+                    path: "/driver-setup",
+                    name: "DriverSetup",
+                    component: DriverSetupPage,
+                    meta: { title: "Driver Setup", requiresAuth: true },
+                },
+                {
+                    path: "rideHistory",
+                    name: "settingsRideHistory",
+                    component: RideHistoryPage,
+                    meta: { title: "Ride History", requiresAuth: true },
+                },
+            ],
+        },
+        {
+            path: "/:pathMatch(.*)*",
+            name: "error",
+            component: ErrorPage,
+            meta: { title: "404" },
+        },
+    ],
 });
 
 router.beforeEach((to, _from, next) => {
-  document.title = `Poolr - ${to.meta.title}`;
-  next();
+    document.title = `Poolr - ${to.meta.title}`;
+    const token = localStorage.getItem('token');
+
+    // Redirect unauthenticated users away from protected pages
+    if (to.meta.requiresAuth && !token) {
+        return next({ name: 'login' });
+    }
+
+    // Redirect logged-in users away from guest-only pages (login/register)
+    if (to.meta.requiresGuest && token) {
+        return next({ name: 'home' });
+    }
+
+    next();
 });
 
 export default router;
