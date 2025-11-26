@@ -200,8 +200,11 @@
 
 <script setup>
 import { ref, computed, watch } from "vue";
+import { useI18n } from "vue-i18n";
 import { useAddressStore } from "../stores/addressStore";
 import { getPrimaryText, getSecondaryText } from "../utils/addressUtils";
+
+const { t } = useI18n();
 
 const props = defineProps({
   placeholder: {
