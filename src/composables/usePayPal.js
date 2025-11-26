@@ -7,9 +7,6 @@ import { useMapStore } from '../stores/mapStore.js'
 
 
 export function usePayPal() {
-
-
-
     const paypalConfig = ref(null)
     const isLoadingPaypalConfig = ref(false)
     const paypalStatus = ref('idle')
@@ -135,7 +132,7 @@ Redirecting to your tickets`
 
                         )
                         setTimeout(async function () {
-                            await router.push('/seeing-tickets')
+                            await router.push('/tickets')
                         }, 3000)
 
 
