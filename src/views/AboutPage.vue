@@ -1,4 +1,9 @@
 <template>
-    this is the about page.
-    not strictly necessary but if this is going on our portfolios then its nice to have.
+    <p>{{ t("about.aboutPageTitle") }}</p>
+    <p>{{ t("about.aboutPageNote") }}</p>
 </template>
+
+<script setup>
+import { useI18n } from "vue-i18n";
+const { t } = useI18n();
+</script>

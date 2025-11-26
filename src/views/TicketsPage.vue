@@ -1,36 +1,40 @@
 <template>
   <div class="max-w-3xl mx-auto px-4 py-6">
-    <h1 class="text-2xl font-bold mb-4">Your Tickets</h1>
+    <h1 class="text-2xl font-bold mb-4">{{ t("tickets.title") }}</h1>
 
     <div v-if="ticketStore.loading" class="text-gray-500 py-4">
-      Loading tickets...
+      {{ t("tickets.loading") }}
     </div>
 
     <div v-else-if="tickets.length === 0" class="text-gray-500 py-4">
-      You have no tickets yet.
+      {{ t("tickets.empty") }}
     </div>
 
     <div v-else class="space-y-4">
       <div
-          v-for="ticket in tickets"
-          :key="ticket.ticketId"
-          class="p-4 border border-gray-200 rounded-lg"
+        v-for="ticket in tickets"
+        :key="ticket.ticketId"
+        class="p-4 border border-gray-200 rounded-lg"
       >
         <div class="flex justify-between items-start">
           <div class="flex-1">
             <p class="text-xs text-gray-500 mb-1">
-              Ticket #{{ ticket.ticketId }}
+              {{ t("tickets.ticketNumber", { id: ticket.ticketId }) }}
             </p>
             <p class="text-sm">
-              Confirmation code:
-              <span class="font-mono font-semibold tracking-widest text-blue-700">
-                                {{ ticket.confirmationCode }}
-                            </span>
+              {{ t("tickets.confirmationCode") }}:
+              <span
+                class="font-mono font-semibold tracking-widest text-blue-700"
+              >
+                {{ ticket.confirmationCode }}
+              </span>
             </p>
 
             <p class="mt-3 text-sm text-gray-600">
-              Driver:
-              <span class="font-medium text-gray-800">{{ ticket.driverName }}</span>
+              {{ t("tickets.driver") }}:
+              <span class="font-medium text-gray-800">{{
+                ticket.driverName
+              }}</span>
             </p>
             <p class="text-sm text-gray-600">
               {{ ticket.vehicle }} • {{ ticket.vehicleColor }}
@@ -46,7 +50,7 @@
                 <span>{{ ticket.endAddress }}</span>
               </div>
               <p class="text-sm text-gray-800 mt-1">
-                Departure:
+                {{ t("tickets.departure") }}:
                 {{ formatDeparture(ticket.startTime) }}
               </p>
             </div>
@@ -57,14 +61,14 @@
               {{ ticket.rideDistanceKm.toFixed(2) }} km
             </p>
             <p class="text-xs text-gray-400 mt-2">
-              Booked at
+              {{ t("tickets.bookedAt") }}
               {{ new Date(ticket.createdAt).toLocaleString() }}
             </p>
           </div>
         </div>
 
         <p class="mt-3 text-xs text-gray-500">
-          Show this confirmation code to the driver to verify your ride.
+          {{ t("tickets.showToDriver") }}
         </p>
       </div>
     </div>
@@ -72,26 +76,28 @@
 </template>
 
 <script setup>
-import { onMounted } from 'vue'
-import { storeToRefs } from 'pinia'
-import { useTicketStore } from '../stores/ticketStore'
+import { onMounted } from "vue";
+import { storeToRefs } from "pinia";
+import { useTicketStore } from "../stores/ticketStore";
+import { useI18n } from "vue-i18n";
 
-const ticketStore = useTicketStore()
-const { tickets } = storeToRefs(ticketStore)
+const { t } = useI18n();
+const ticketStore = useTicketStore();
+const { tickets } = storeToRefs(ticketStore);
 
 onMounted(() => {
-  ticketStore.fetchMyTickets()
-})
+  ticketStore.fetchMyTickets();
+});
 
 const formatDeparture = (startTime) => {
-  if (!startTime) return 'Unknown'
-  const d = new Date(startTime)
+  if (!startTime) return "Unknown";
+  const d = new Date(startTime);
   return d.toLocaleString([], {
-    hour: 'numeric',
-    minute: '2-digit',
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric'
-  })
-}
+    hour: "numeric",
+    minute: "2-digit",
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  });
+};
 </script>

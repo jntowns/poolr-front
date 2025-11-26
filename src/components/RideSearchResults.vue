@@ -1,14 +1,17 @@
 <template>
     <div class="ride-search-results">
-        <h2 class="text-xl font-bold text-gray-900 mb-4">Available Rides</h2>
+        <h2 class="text-xl font-bold text-gray-900 mb-4">
+            {{ t("rides.availableRides") }}
+        </h2>
         <div v-if="futureRides.length === 0" class="text-center py-8 text-gray-500">
-            No rides found. Try adjusting your search criteria.
+            {{ t("rides.noRidesFound") }}
         </div>
         <div v-else class="space-y-4">
             <div v-for="ride in futureRides" :key="ride.rideId"
                 class="p-4 border border-gray-200 rounded-lg hover:border-blue-500 hover:shadow-md transition cursor-pointer"
-                :class="{ 'border-blue-500 bg-blue-50': selectedRideId === ride.rideId }"
-                @click="$emit('select', ride)">
+                :class="{
+                    'border-blue-500 bg-blue-50': selectedRideId === ride.rideId,
+                }" @click="$emit('select', ride)">
                 <div class="flex items-start justify-between">
                     <div class="flex-1">
                         <div class="flex items-center gap-2 mb-2">
@@ -33,12 +36,18 @@
                     </div>
                     <div class="text-right min-w-[140px]">
                         <p class="text-lg font-semibold text-gray-900">
-                            {{ ride.pricing ? formatCurrency(ride.pricing.grossAmount) : '—' }}
+                            {{
+                                ride.pricing ? formatCurrency(ride.pricing.grossAmount) : "—"
+                            }}
                         </p>
                         <p class="text-xs text-gray-500">
-                            {{ (ride.rideDistanceKm || 0).toFixed(2) }} km trip • {{ (ride.detourDistance ||
-                                0).toFixed(2) }} km detour for driver • Subtotal:
-                            {{ ride.pricing ? formatCurrency(ride.pricing.subtotalAmount) : '—' }}
+                            {{ (ride.rideDistanceKm || 0).toFixed(2) }} km
+                            {{ t("rideSearch.trip") }} •
+                            {{ (ride.detourDistance || 0).toFixed(2) }} km
+                            {{ t("rideSearch.detourForDriver") }} • {{ t("rides.subtotal") }}:
+                            {{
+                                ride.pricing ? formatCurrency(ride.pricing.subtotalAmount) : "—"
+                            }}
                         </p>
                     </div>
                 </div>
@@ -46,7 +55,7 @@
                     <button
                         class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1"
                         @click.stop="$emit('select', ride)">
-                        Use This Ride
+                        {{ t("rides.useThisRide") }}
                     </button>
                 </div>
             </div>
@@ -55,27 +64,29 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
-import { formatCurrency } from '../utils/pricing'
-import { getDepartureInfo } from '../utils/dateUtils'
+import { computed } from "vue";
+import { formatCurrency } from "../utils/pricing";
+import { getDepartureInfo } from "../utils/dateUtils";
+import { useI18n } from "vue-i18n";
 
+const { t } = useI18n();
 const props = defineProps({
     rides: {
         type: Array,
-        required: true
+        required: true,
     },
     selectedRideId: {
         type: Number,
-        default: null
-    }
-})
+        default: null,
+    },
+});
 
 const futureRides = computed(() => {
-    const now = new Date()
-    return props.rides.filter(ride => new Date(ride.startTime) > now)
-})
+    const now = new Date();
+    return props.rides.filter((ride) => new Date(ride.startTime) > now);
+});
 
-defineEmits(['select'])
+defineEmits(["select"]);
 </script>
 
 <style scoped>

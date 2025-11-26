@@ -1,43 +1,47 @@
 <template>
     <div class="ride-summary">
         <div class="summary-row">
-            <span class="label">Driver</span>
+            <span class="label">{{ t("rideSummary.driver") }}</span>
             <span class="value">{{ ride.driverName }}</span>
         </div>
         <div class="summary-row">
-            <span class="label">Vehicle</span>
+            <span class="label">{{ t("rideSummary.vehicle") }}</span>
             <span class="value">{{ ride.vehicle }} ({{ ride.vehicleColor }})</span>
         </div>
         <div class="summary-row">
-            <span class="label">Pickup</span>
+            <span class="label">{{ t("rideSummary.pickup") }}</span>
             <span class="value">{{ ride.startAddress }}</span>
         </div>
         <div class="summary-row">
-            <span class="label">Destination</span>
+            <span class="label">{{ t("rideSummary.destination") }}</span>
             <span class="value">{{ ride.endAddress }}</span>
         </div>
         <div v-if="routeData" class="summary-row">
-            <span class="label">Route Distance</span>
+            <span class="label">{{ t("rideSummary.routeDistance") }}</span>
             <span class="value">{{ routeData.distanceKm.toFixed(2) }} km</span>
         </div>
         <div v-if="routeData" class="summary-row">
-            <span class="label">Estimated Duration</span>
+            <span class="label">{{ t("rideSummary.estimatedDuration") }}</span>
             <span class="value">{{ routeData.durationMinutes.toFixed(1) }} min</span>
         </div>
     </div>
 </template>
 
 <script setup>
+import { useI18n } from "vue-i18n";
+
+const { t } = useI18n();
+
 defineProps({
     ride: {
         type: Object,
-        required: true
+        required: true,
     },
     routeData: {
         type: Object,
-        default: null
-    }
-})
+        default: null,
+    },
+});
 </script>
 
 <style scoped>
