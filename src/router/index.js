@@ -45,13 +45,13 @@ const router = createRouter({
             path: "/tickets",
             name: "tickets",
             component: TicketsPage,
-            meta: { title: "Tickets Page", requiresAuth: true },
+            meta: { title: "Tickets", requiresAuth: true },
         },
         {
             path: "/ride-results",
             name: "RideResults",
             component: RideDetailsPage,
-            meta: { title: "Ride Details" },
+            meta: { title: "Ride Results" },
         },
         {
             path: "/transaction",
